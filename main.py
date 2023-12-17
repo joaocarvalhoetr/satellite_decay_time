@@ -59,6 +59,9 @@ with open('data.txt') as f:
 
 # Calculate initial state vector
 initial_vec = [h, e, RA, i, w, TA]
+time_vec = []
+radious = []
+
 
 # Function to calculate the acceleration
 def acceleration(t, y):
@@ -89,17 +92,25 @@ def acceleration(t, y):
 
     return np.concatenate((v, a))
 
+# Function to detect the end of the integration
 def event(t, y):
+    
+
     # Print altitude during integration
     altitude = np.linalg.norm(y[:3]) - R_earth
-    print("Altitude:", altitude)
 
-    # return the difference between altitude and 0
-    return altitude
+    #append time and altitude to the lists
+    time_vec.append(t)
+    radious.append(altitude)
+
+    if altitude <= 0:
+        # if the altitude is less than or equal to 0, the integration stops
+        return 0
+    return 1
 
 # Integration Settings
 t0 = 0
-tf = 120 * days
+tf = 500000 * days
 
 R0, V0 = sv_from_coe(initial_vec, mu)
 
@@ -115,57 +126,19 @@ nout = 40000
 tspan = np.linspace(t0, tf, nout)
 
 # Set error tolerances, initial step size, and termination event:
-options = {'rtol': 1e-8, 'atol': 1e-8, 'h0': 1/10000}
+options = {'rtol': 1e-10, 'atol': 1e-10}
+
+event.terminal = True
 
 # Call the ODE solver
-sol = solve_ivp(acceleration, [t0, tf], y0, method='RK45', t_eval=tspan, events=event, **options)
+sol = solve_ivp(acceleration, [t0, tf], y0, method='RK45', t_eval=tspan, events=event, **options, dense_output=True)
 
-# Extract locally extreme altitudes
-altitude = np.sqrt(np.sum(sol.y[:3, :] ** 2, axis=0)) - R_earth  # Altitude at each time
-
-# Find local extrema
-maxima_indices = np.r_[True, altitude[1:] > altitude[:-1]] & np.r_[altitude[:-1] > altitude[1:], True]
-minima_indices = np.r_[True, altitude[1:] < altitude[:-1]] & np.r_[altitude[:-1] < altitude[1:], True]
-
-# Get times and altitudes of maxima and minima
-maxima_times = sol.t[maxima_indices]
-maxima_altitudes = altitude[maxima_indices]
-minima_times = sol.t[minima_indices]
-minima_altitudes = altitude[minima_indices]
-
-# Create arrays for maxima and minima
-maxima = np.column_stack((maxima_times, maxima_altitudes))
-minima = np.column_stack((minima_times, minima_altitudes))
-
-# Sort maxima and minima by time
-apogee = maxima[maxima[:, 0].argsort()]
-perigee = minima[minima[:, 0].argsort()]
-
-# Plot perigee and apogee history on the same figure
-plt.figure(1)
-
-# Set NaN for the first value in apogee (assuming it's a 2D array)
-apogee[0, 1] = np.nan
-
-# Plot apogee in blue
-plt.plot(apogee[:, 0] / days, apogee[:, 1], 'b', linewidth=2, label='Apogee')
-
-# Plot perigee in red
-plt.plot(perigee[:, 0] / days, perigee[:, 1], 'r', linewidth=2, label='Perigee')
-
-# Set up the plot with grid, labels, and limits
-plt.grid(True)
-plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
-plt.xlabel('Time (days)')
+#plot radious vs time
+plt.plot(time_vec, radious)
+plt.xlabel('Time (s)')
 plt.ylabel('Altitude (km)')
-plt.ylim([0, 1000])
-
-# Show legend
-plt.legend()
-
-# Display the plot
+plt.title('Altitude vs Time')
 plt.show()
-
 
 # Remove the file atmosphericlayers_output.csv if it exists
 if os.path.exists('atmosphericlayers_output.csv'):

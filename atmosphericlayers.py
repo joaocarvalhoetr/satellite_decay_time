@@ -78,8 +78,6 @@ def scale_factor_calculate(height):
 # Function that calculates the density for a given height. It uses the function scale_factor_calculate as auxiliary.
 
 def density_calculate(heigh):
-    # "Altitude Requested: " print
-    print("Altitude Requested: ", heigh, "km")
     #Compute the scale factor for the given height
     scale_factor = scale_factor_calculate(heigh)
 
