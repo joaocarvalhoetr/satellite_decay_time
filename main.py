@@ -3,6 +3,8 @@ from scipy.integrate import solve_ivp
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+from atmosphericlayers import *
+from statevectorcalculation import *
 
 # Constants
 RE = 6371.0  # Earth's radius in km
@@ -57,91 +59,113 @@ with open('data.txt') as f:
 
 # Calculate initial state vector
 initial_vec = [h, e, RA, i, w, TA]
-r = np.array([0, 0, 0])  # Initialize position vector
-v = np.array([0, 0, 0])  # Initialize velocity vector
 
-# Function to calculate spacecraft acceleration
-def rates(t, f):
-    R = f[:3]  # Position vector (km)
-    r = np.linalg.norm(R)  # Distance from earth’s center (km)
-    alt = r - R_earth  # Altitude (km)
-    V = f[3:]  # Velocity vector (km/s)
-
-    V = np.squeeze(V)
-    R = np.squeeze(R)
-
-    Vrel = V - np.cross(wE, R)  # Velocity relative to the atmosphere (km/s)
-
-    vrel = np.linalg.norm(Vrel)  # Speed relative to the atmosphere (km/s)
-    uv = Vrel / vrel  # Relative velocity unit vector
-    ap = -CD * A / m * 1.225 * (1000 * vrel) ** 2 / 2 * uv  # Acceleration due to drag (m/s^2)
-    a0 = -mu * R / r ** 3  # Gravitational acceleration (km/s^2)
-    a = a0 + ap / 1000  # Total acceleration (km/s^2)
-    return np.concatenate([V, a])
-
-# Initial conditions
-y0 = np.concatenate([r, v]).ravel()  # Flatten the array
-
-# Integration time interval
-t0, tf = 0, 120 * 86400  # Initial and final times in seconds
-nout = 40000  # Number of solution points to output
-t_span = np.linspace(t0, tf, nout)
-
-# Set error tolerances, initial step size, and termination event
-options = {
-    'rtol': 1e-8,
-    'atol': 1e-8,
-    'first_step': (tf - t0) / 10000,
-}
-
-# Initialize lists to store apogee and perigee altitudes and times
-apogee_altitudes = []
-perigee_altitudes = []
-apogee_times = []
-perigee_times = []
-
-def altitude_event(t, y):
-    R = y[:3]
+# Function to calculate the acceleration
+def acceleration(t, y):
+    r = y[:3]
+    v = y[3:]
     
-    # Altitude
-    altitude = np.linalg.norm(R) - R_earth
-    #altitude event print
-    print(altitude)
-    # Check for apogee and perigee
-    if altitude >= max(apogee_altitudes, default=float('-inf')):
-        apogee_altitudes.append(altitude)
-        apogee_times.append(t)
+    # Calculate atmospherical velocity
+    wE = [0, 0, 7.2921159e-5]  # Earth's angular velocity in rad/s
+    v_atmosphere = np.cross(wE, r)
 
-    if altitude <= min(perigee_altitudes, default=float('inf')):
-        perigee_altitudes.append(altitude)
-        perigee_times.append(t)
+    # Calculate relative velocity
+    v_rel = v - v_atmosphere
 
+    # unitary vector
+    vrel_unit = v_rel / np.linalg.norm(v_rel)
+
+    # compute the absolute value of the relative velocity
+    vrel_abs = np.linalg.norm(v_rel)
+
+    # Calculate P
+    P = -0.5 * density_calculate(np.linalg.norm(r)-R_earth) * CD * A / m * np.linalg.norm(v_rel) * vrel_unit
+
+    # Calculate gravitational acceleration
+    a0 = -mu / np.linalg.norm(r) ** 3 * r
+
+    # Calculate the acceleration
+    a = a0 + P + (-mu / np.linalg.norm(r) ** 3) * r
+
+    return np.concatenate((v, a))
+
+def event(t, y):
+    # Print altitude during integration
+    altitude = np.linalg.norm(y[:3]) - R_earth
+    print("Altitude:", altitude)
+
+    # return the difference between altitude and 0
     return altitude
 
-altitude_event.terminal = True
+# Integration Settings
+t0 = 0
+tf = 120 * days
 
-# Integration using solve_ivp
-sol = solve_ivp(rates, [t0, tf], y0, t_eval=t_span, method='RK45', vectorized=True, events=altitude_event, **options)
+R0, V0 = sv_from_coe(initial_vec, mu)
 
+print("Initial state vector: ", R0, V0)
 
-# Plot altitudes within the specified time range
-# Extract the locally extreme altitudes within the specified time range
-time_range_indices = (np.array(sol.t) >= t0) & (np.array(sol.t) <= tf)
-if any(time_range_indices):
-    altitude_range = np.linalg.norm(np.array(sol.y)[:3, time_range_indices], axis=0) - RE
-    time_range = np.array(sol.t)[time_range_indices]
+# initial state vector
+y0 = [R0[0][0], R0[0][1], R0[0][2], V0[0][0], V0[0][1], V0[0][2]]
 
-    # Plot altitudes within the specified time range
-    plt.plot(time_range / 86400, altitude_range, 'k', linewidth=2, label='Altitude')
-    plt.scatter(np.array(apogee_times) / 86400, np.array(apogee_altitudes), color='r', marker='o', label='Apogee')
-    plt.scatter(np.array(perigee_times) / 86400, np.array(perigee_altitudes), color='b', marker='o', label='Perigee')
-    plt.grid(True)
-    plt.xlabel('Time (days)')
-    plt.ylabel('Altitude (km)')
-    plt.legend()
-    plt.show()
-else:
-    print("No altitude events within the specified time range.")
+# Number of points to output
+nout = 40000
+
+# Integration Time Interval from t0 to tf with nout points
+tspan = np.linspace(t0, tf, nout)
+
+# Set error tolerances, initial step size, and termination event:
+options = {'rtol': 1e-8, 'atol': 1e-8, 'h0': 1/10000}
+
+# Call the ODE solver
+sol = solve_ivp(acceleration, [t0, tf], y0, method='RK45', t_eval=tspan, events=event, **options)
+
+# Extract locally extreme altitudes
+altitude = np.sqrt(np.sum(sol.y[:3, :] ** 2, axis=0)) - R_earth  # Altitude at each time
+
+# Find local extrema
+maxima_indices = np.r_[True, altitude[1:] > altitude[:-1]] & np.r_[altitude[:-1] > altitude[1:], True]
+minima_indices = np.r_[True, altitude[1:] < altitude[:-1]] & np.r_[altitude[:-1] < altitude[1:], True]
+
+# Get times and altitudes of maxima and minima
+maxima_times = sol.t[maxima_indices]
+maxima_altitudes = altitude[maxima_indices]
+minima_times = sol.t[minima_indices]
+minima_altitudes = altitude[minima_indices]
+
+# Create arrays for maxima and minima
+maxima = np.column_stack((maxima_times, maxima_altitudes))
+minima = np.column_stack((minima_times, minima_altitudes))
+
+# Sort maxima and minima by time
+apogee = maxima[maxima[:, 0].argsort()]
+perigee = minima[minima[:, 0].argsort()]
+
+# Plot perigee and apogee history on the same figure
+plt.figure(1)
+
+# Set NaN for the first value in apogee (assuming it's a 2D array)
+apogee[0, 1] = np.nan
+
+# Plot apogee in blue
+plt.plot(apogee[:, 0] / days, apogee[:, 1], 'b', linewidth=2, label='Apogee')
+
+# Plot perigee in red
+plt.plot(perigee[:, 0] / days, perigee[:, 1], 'r', linewidth=2, label='Perigee')
+
+# Set up the plot with grid, labels, and limits
+plt.grid(True)
+plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
+plt.xlabel('Time (days)')
+plt.ylabel('Altitude (km)')
+plt.ylim([0, 1000])
+
+# Show legend
+plt.legend()
+
+# Display the plot
+plt.show()
+
 
 # Remove the file atmosphericlayers_output.csv if it exists
 if os.path.exists('atmosphericlayers_output.csv'):
