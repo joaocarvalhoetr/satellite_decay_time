@@ -48,7 +48,7 @@ for i in range(20):
 
 # Function that calculates a specific temperature for a given height. It uses the data from the csv file
 # in order to with the lapse rate compute the temperature wanted.
-    
+  
 def temperature_calculate(heigh):
     
     # Locate the layer the height given is in
