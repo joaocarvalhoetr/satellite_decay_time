@@ -2,6 +2,8 @@ import math
 from scipy.integrate import solve_ivp
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # Import the 3D plotting toolkit
+from matplotlib.animation import FuncAnimation
 import os
 from atmosphericlayers import *
 from statevectorcalculation import *
@@ -108,6 +110,7 @@ def event(t, y):
         return 0
     return 1
 
+
 # Integration Settings
 t0 = 0
 tf = 500000 * days
@@ -130,8 +133,30 @@ options = {'rtol': 1e-10, 'atol': 1e-10}
 
 event.terminal = True
 
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
 # Call the ODE solver
 sol = solve_ivp(acceleration, [t0, tf], y0, method='RK45', t_eval=tspan, events=event, **options, dense_output=True)
+
+def update_plot(i, time_vec, radious):
+    ax.clear()
+    ax.set_xlim(0, 250)  # Adjust these limits based on your simulation
+    ax.set_ylim(0, 250)
+    ax.set_zlim(0, 250)
+    ax.plot(time_vec[:i], radious[:i], zs=0, zdir='z', label='Satellite Trajectory')
+    ax.set_xlabel('Time (s)')
+    ax.set_ylabel('Altitude (km)')
+    ax.set_zlabel('Z')
+
+# Animation function
+def update(i):
+    update_plot(i, time_vec, radious)
+
+# Create animation
+animation = FuncAnimation(fig, update_plot, frames=len(sol.t), fargs=(time_vec, radious), interval=50, repeat=False)
+
+plt.show()
 
 #plot radious vs time
 plt.plot(time_vec, radious)
