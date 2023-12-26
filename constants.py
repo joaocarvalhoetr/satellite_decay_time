@@ -9,3 +9,4 @@ R_idealgas = 8.31446261815324 # J/(mol K)
 g_0 = 9.80665 # m/s^2
 rho_0 = 1.225 # kg/m^3
 deg = math.pi/180 # rad
+omega_earth = 2*math.pi/(24*3600) # rad/s
