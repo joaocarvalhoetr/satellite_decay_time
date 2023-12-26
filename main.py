@@ -2,6 +2,7 @@ import math
 from scipy.integrate import solve_ivp
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 import os
 from atmosphericlayers import *
 from statevectorcalculation import *
@@ -108,6 +109,7 @@ def event(t, y):
         return 0
     return 1
 
+
 # Integration Settings
 t0 = 0
 tf = 500000 * days
@@ -138,6 +140,26 @@ plt.plot(time_vec, radious)
 plt.xlabel('Time (s)')
 plt.ylabel('Altitude (km)')
 plt.title('Altitude vs Time')
+plt.show()
+
+# Velocity vs. Time Plot
+velocity_magnitude = np.linalg.norm(sol.y[3:], axis=0)
+
+plt.plot(sol.t, velocity_magnitude)
+plt.xlabel('Time (s)')
+plt.ylabel('Velocity Magnitude (km/s)')
+plt.title('Velocity vs Time')
+plt.ylim(0, max(velocity_magnitude) + 0.1)  # Adjust y-axis limits
+plt.show()
+
+# Eccentricity vs. Time Plot
+eccentricity = sol.y[1]
+
+plt.plot(sol.t, eccentricity)
+plt.xlabel('Time (s)')
+plt.ylabel('Eccentricity')
+plt.title('Eccentricity vs Time')
+plt.ylim(0, 1.1)  # Adjust y-axis limits
 plt.show()
 
 # Remove the file atmosphericlayers_output.csv if it exists
