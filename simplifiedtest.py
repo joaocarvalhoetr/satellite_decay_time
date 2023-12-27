@@ -28,9 +28,14 @@ def main():
     vy0 = 0
 
     t0 = 0
-    tf = 100000
+    tf = 1000000
     dt = 0.1
     t = np.arange(t0, tf, dt)
+
+    # implement manual ode solver
+
+    
+
 
     sol = solve_ivp(f, [t0, tf], [x0, y0, vx0, vy0], t_eval=t)
 
@@ -48,7 +53,10 @@ def main():
     # Label the axes
     plt.xlabel('Time (s)')
     plt.ylabel('Altitude (km)')
-
     plt.show()
+
+
+    print(r)
+    print(sol.t)
 
 main()
