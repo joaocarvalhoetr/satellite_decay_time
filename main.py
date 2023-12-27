@@ -6,6 +6,9 @@ from matplotlib.animation import FuncAnimation
 import os
 from atmosphericlayers import *
 from statevectorcalculation import *
+from extrema import *
+from scipy.signal import argrelextrema
+from scipy.integrate import odeint
 
 # Constants
 RE = 6371.0  # Earth's radius in km
@@ -99,7 +102,7 @@ def event(t, y):
 
     # Print altitude during integration
     altitude = np.linalg.norm(y[:3]) - R_earth
-
+    #print(altitude)
     #append time and altitude to the lists
     time_vec.append(t)
     radious.append(altitude)
@@ -112,7 +115,7 @@ def event(t, y):
 
 # Integration Settings
 t0 = 0
-tf = 500000 * days
+tf = 50000 * days
 
 R0, V0 = sv_from_coe(initial_vec, mu)
 
@@ -121,6 +124,7 @@ print("Initial state vector: ", R0, V0)
 # initial state vector
 y0 = [R0[0][0], R0[0][1], R0[0][2], V0[0][0], V0[0][1], V0[0][2]]
 
+
 # Number of points to output
 nout = 40000
 
@@ -128,12 +132,52 @@ nout = 40000
 tspan = np.linspace(t0, tf, nout)
 
 # Set error tolerances, initial step size, and termination event:
-options = {'rtol': 1e-10, 'atol': 1e-10}
+options = {'rtol': 1e-8, 'atol': 1e-8}
 
 event.terminal = True
 
 # Call the ODE solver
-sol = solve_ivp(acceleration, [t0, tf], y0, method='RK45', t_eval=tspan, events=event, **options, dense_output=True)
+sol= solve_ivp(acceleration, [t0, tf], y0, method='RK45', t_eval=tspan, events=event, **options, dense_output=True)
+#y = odeint(acceleration, y0, tspan)
+#t=tspan
+#Extract the locally extreme altitudes
+#print(radious)
+##altura = np.sqrt(np.sum(radious[:, 0:3]**2, axis=1)) - RE
+#print(altura)
+##max_altitude,imax,min_altitude,imin = extrema(altura)
+
+
+##maxima   = [time_vec[imax], max_altitude];  #Maximum altitudes and times
+##minima   = [time_vec[imin], min_altitude];  #Minimum altitudes and times
+
+#apogee   = sortrows(maxima,1);      #Maxima sorted with time                       
+#perigee  = sortrows(minima,1);      #Minima sorted with time
+
+##apogee = maxima[maxima[:, 0].argsort()]
+##perigee = minima[minima[:, 0].argsort()]
+
+# Set the first value of apogee's altitude to NaN
+#apogee[0, 1] = np.nan
+
+# Plot perigee and apogee history on the same figure
+#plt.figure(1)
+#plt.plot(apogee[:, 0] / days, apogee[:, 1], 'b', linewidth=2, label='Apogee')
+#plt.plot(perigee[:, 0] / days, perigee[:, 1], 'r', linewidth=2, label='Perigee')
+#plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+#plt.xlabel('Time (days)')
+#plt.ylabel('Altitude (km)')
+#plt.ylim([0, 1000])
+#plt.legend()
+#plt.show()
+
+
+
+
+
+
+
+
+
 
 #plot radious vs time
 plt.plot(time_vec, radious)
