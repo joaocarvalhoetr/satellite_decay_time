@@ -96,5 +96,3 @@ def density_calculate(heigh):
 
     #Return the density
     return density
-
-print(density_calculate(254))
