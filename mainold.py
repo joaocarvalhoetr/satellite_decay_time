@@ -9,9 +9,13 @@ from statevectorcalculation import *
 from extrema import extrema
 from scipy.signal import argrelextrema
 from scipy.integrate import odeint
-from density import atmosphere
-from findpeaks import *
 
+# Constants
+RE = 6371.0  # Earth's radius in km
+mu = 398600.4418  # Earth's gravitational parameter in km^3/s^2
+wE = [0, 0, 7.2921159e-5]  # Earth's angular velocity in rad/s
+deg = math.pi / 180.0  # Conversion factor from degrees to radians
+R_earth = 6371.0  # Earth's radius in km
 
 # Read from data.txt, Cd(1st line), e(2nd line), and R_a(3rd line)
 # The structure of the lines in the txt is for example for Cd "Cd: 2.2"
@@ -67,7 +71,6 @@ radious = []
 def acceleration(t, y):
     r = y[:3]
     v = y[3:]
-    drdt = v
 
     # Constants
     mu = 398600  # Gravitational parameter in km^3/s^2
@@ -90,7 +93,7 @@ def acceleration(t, y):
     vrel_abs = np.linalg.norm(v_rel)
 
     # Calculate density
-    density = atmosphere(np.linalg.norm(r) - R_earth)  # Adjust this value or use a function to compute density based on altitude
+    density = density_calculate(np.linalg.norm(r) - R_earth)  # Adjust this value or use a function to compute density based on altitude
 
     # Calculate drag acceleration
     P = -CD *A/m * density * (1000*vrel_abs)**2/2 * vrel_unit
@@ -99,25 +102,40 @@ def acceleration(t, y):
     a0 = (-mu / float(np.linalg.norm(r))**3) * np.array(r)
 
     # Calculate the total acceleration
-    dvdt = a0 + P/1000   
+    a = a0 + P/1000
 
-    return np.concatenate((drdt, dvdt))
+    # print all the steps above 
+    
+    # print("r: ", r)
+    # print("v: ", v)
+    # print("v_atmosphere: ", v_atmosphere)
+    # print("v_rel: ", v_rel)
+    # print("v_rel_abs: ", vrel_abs)
+    # print("v_rel_unit: ", vrel_unit)
+    # print("density: ", density)
+    # print("P: ", P)
+    # print("a0: ", a0)
+    # print("a: ", a)
+
+    return np.concatenate((v, a))
 
 # Function to detect the end of the integration
 def event(t, y):
     altitude = np.linalg.norm(y[:3]) - R_earth
     
-    #altitude triggered
+    print("Altitude: ", altitude)
 
     # append time and altitude to the lists
     time_vec.append(t)
     radious.append(altitude)
 
-    if altitude <= 0:
+    if altitude <= 100:
         # if the altitude is less than or equal to 0, the integration stops
         print("Termination event triggered.")
         return 0
     return 1
+
+
 
 # Integration Settings
 
@@ -137,7 +155,7 @@ nout = 40000
 tspan = np.linspace(t0, tf, nout)
 
 # Set error tolerances, initial step size, and termination event:
-options = {'rtol': 1e-15, 'atol': 1e-15}
+options = {'rtol': 1e-8, 'atol': 1e-8}
 
 event.terminal = True
 
@@ -146,47 +164,49 @@ initial_altitude = np.linalg.norm(y0[:3]) - R_earth
 print("Initial Altitude:", initial_altitude)
 
 # Call the ODE solver
-
-#sol= solve_ivp(acceleration, [t0, tf], y0, method='RK45', t_eval=tspan, events=event)
-sol = solve_ivp(acceleration, (t0, tf), y0, t_eval=tspan, events=event, method='DOP853')
+sol= solve_ivp(acceleration, [t0, tf], y0, method='RK45', t_eval=tspan, events=event)
+#sol = solve_ivp(f, [t0, tf], [x0, y0, vx0, vy0], t_eval=t, method='RK45')
 
 # pick all the y values from sol, compute for each y the norm, and subtract the earth radius
 altitude = np.linalg.norm(sol.y[:3], axis=0) - R_earth
 
-time = sol.t
+print(altitude)
 
-[maxima, minima] = find_local_extrema(altitude, time)
+[max_altitude,imax,min_altitude,imin] = extrema(altitude)
 
-# Example usage
-maxima_x = time[maxima]
-maxima_y = altitude[maxima]
+print("Maximum Altitude:", max_altitude)
+print("Minimum Altitude:", min_altitude)
 
-minima_x = time[minima]
-minima_y = altitude[minima]
+# # Convert imax and imin to arrays of integers
+# imax = np.array(imax, dtype=int)
+# imin = np.array(imin, dtype=int)
 
-# Fit curves to maxima and minima
-degree = 15  # You can adjust the degree of the polynomial
-maxima_coefficients, maxima_fitted_values = fit_curve(maxima_x, maxima_y, degree)
-minima_coefficients, minima_fitted_values = fit_curve(minima_x, minima_y, degree)
+# # Maximum altitudes and times
+# maxima = np.column_stack((sol.t[imax], max_altitude))
 
-# Plotting maxima with fitted values
-plt.plot(time[maxima]/8640, maxima_fitted_values, label='Maxima', linestyle='-', color='red')
-# Plotting minima with fitted values
-plt.plot(time[minima]/8640, minima_fitted_values, label='Minima', linestyle='-', color='green')
+# # Minimum altitudes and times
+# minima = np.column_stack((sol.t[imin], min_altitude))
 
-# Adding labels and legend
-plt.xlabel('Time (days)')  # Replace 'Time' with the actual label for the x-axis
-plt.ylabel('Fitted Values')  # Replace 'Fitted Values' with the actual label for the y-axis
-plt.legend()
+# # Maxima sorted with time
+# apogee = maxima[maxima[:, 0].argsort()]
 
-# Display the plot
+# # Minima sorted with time
+# perigee = minima[minima[:, 0].argsort()]
+
+# print("Apogee:", apogee)
+# print("Perigee:", perigee)
+
+
+#plot radious vs time
+plt.plot(time_vec, radious)
+plt.xlabel('Time (s)')
+plt.ylabel('Altitude (km)')
+plt.title('Altitude vs Time')
 plt.show()
 
 
-print("a")
-
 # Remove the file atmosphericlayers_output.csv if it exists
-# if os.path.exists('atmosphericlayers_output.csv'):
-#     os.remove('atmosphericlayers_output.csv')
-# else:
-#     print("The file atmosphericlayers_output.csv does not exist.")
+if os.path.exists('atmosphericlayers_output.csv'):
+    os.remove('atmosphericlayers_output.csv')
+else:
+    print("The file atmosphericlayers_output.csv does not exist.")
