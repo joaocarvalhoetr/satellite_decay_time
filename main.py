@@ -6,7 +6,7 @@ from matplotlib.animation import FuncAnimation
 import os
 from atmosphericlayers import *
 from statevectorcalculation import *
-from extrema import *
+from extrema import extrema
 from scipy.signal import argrelextrema
 from scipy.integrate import odeint
 
@@ -127,7 +127,7 @@ def event(t, y):
     time_vec.append(t)
     radious.append(altitude)
 
-    if altitude <= 0:
+    if altitude <= 100:
         # if the altitude is less than or equal to 0, the integration stops
         print("Termination event triggered.")
         return 0
@@ -164,6 +164,35 @@ print("Initial Altitude:", initial_altitude)
 # Call the ODE solver
 sol= solve_ivp(acceleration, [t0, tf], y0, method='RK45', t_eval=tspan, events=event)
 #sol = solve_ivp(f, [t0, tf], [x0, y0, vx0, vy0], t_eval=t, method='RK45')
+
+# pick all the y values from sol, compute for each y the norm, and subtract the earth radius
+altitude = np.linalg.norm(sol.y[:3], axis=0) - R_earth
+
+print(altitude)
+
+[max_altitude,imax,min_altitude,imin] = extrema(altitude)
+
+print("Maximum Altitude:", max_altitude)
+print("Minimum Altitude:", min_altitude)
+
+# Convert imax and imin to arrays of integers
+imax = np.array(imax, dtype=int)
+imin = np.array(imin, dtype=int)
+
+# Maximum altitudes and times
+maxima = np.column_stack((sol.t[imax], max_altitude))
+
+# Minimum altitudes and times
+minima = np.column_stack((sol.t[imin], min_altitude))
+
+# Maxima sorted with time
+apogee = maxima[maxima[:, 0].argsort()]
+
+# Minima sorted with time
+perigee = minima[minima[:, 0].argsort()]
+
+print("Apogee:", apogee)
+print("Perigee:", perigee)
 
 
 #plot radious vs time
