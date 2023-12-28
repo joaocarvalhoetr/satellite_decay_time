@@ -123,6 +123,7 @@ def acceleration(t, y):
 def event(t, y):
     altitude = np.linalg.norm(y[:3]) - R_earth
     
+
     # append time and altitude to the lists
     time_vec.append(t)
     radious.append(altitude)
