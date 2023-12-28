@@ -71,55 +71,76 @@ radious = []
 def acceleration(t, y):
     r = y[:3]
     v = y[3:]
-    
-    # Calculate atmospherical velocity
-    wE = [0, 0, 7.2921159e-5]  # Earth's angular velocity in rad/s
+
+    # Constants
+    mu = 398600  # Gravitational parameter in km^3/s^2
+    R_earth = 6378  # Earth radius in km
+    wE = np.array([0, 0, 7.2921159e-5])  # Earth's angular velocity in rad/s
+    CD = 2.2  # Drag coefficient
+    A = np.pi / 4 * (1 ** 2)  # Frontal area in m^2
+    m = 100  # Mass in kg
+
+    # Calculate atmospheric velocity
     v_atmosphere = np.cross(wE, r)
 
     # Calculate relative velocity
     v_rel = v - v_atmosphere
 
-    # unitary vector
+    # Unitary vector
     vrel_unit = v_rel / np.linalg.norm(v_rel)
 
-    # compute the absolute value of the relative velocity
+    # Compute the absolute value of the relative velocity
     vrel_abs = np.linalg.norm(v_rel)
 
-    # Calculate P
-    P = -0.5 * density_calculate(np.linalg.norm(r)-R_earth) * CD * A / m * np.linalg.norm(v_rel) * vrel_unit
+    # Calculate density
+    density = density_calculate(np.linalg.norm(r) - R_earth)  # Adjust this value or use a function to compute density based on altitude
+
+    # Calculate drag acceleration
+    P = -CD *A/m * density * (1000*vrel_abs)**2/2 * vrel_unit
 
     # Calculate gravitational acceleration
-    a0 = -mu / np.linalg.norm(r) ** 3 * r
+    a0 = (-mu / float(np.linalg.norm(r))**3) * np.array(r)
 
-    # Calculate the acceleration
-    a = a0 + P + (-mu / np.linalg.norm(r) ** 3) * r
+    # Calculate the total acceleration
+    a = a0 + P/1000
+
+    # print all the steps above 
+    
+    # print("r: ", r)
+    # print("v: ", v)
+    # print("v_atmosphere: ", v_atmosphere)
+    # print("v_rel: ", v_rel)
+    # print("v_rel_abs: ", vrel_abs)
+    # print("v_rel_unit: ", vrel_unit)
+    # print("density: ", density)
+    # print("P: ", P)
+    # print("a0: ", a0)
+    # print("a: ", a)
 
     return np.concatenate((v, a))
 
 # Function to detect the end of the integration
 def event(t, y):
-    
-
-    # Print altitude during integration
     altitude = np.linalg.norm(y[:3]) - R_earth
-    #print(altitude)
-    #append time and altitude to the lists
+    
+    # append time and altitude to the lists
     time_vec.append(t)
     radious.append(altitude)
 
     if altitude <= 0:
         # if the altitude is less than or equal to 0, the integration stops
+        print("Termination event triggered.")
         return 0
     return 1
 
 
+
 # Integration Settings
-t0 = 0
-tf = 50000 * days
+
+t0 = 1e-100
+tf = 120 * days
 
 R0, V0 = sv_from_coe(initial_vec, mu)
-
-print("Initial state vector: ", R0, V0)
 
 # initial state vector
 y0 = [R0[0][0], R0[0][1], R0[0][2], V0[0][0], V0[0][1], V0[0][2]]
@@ -136,47 +157,13 @@ options = {'rtol': 1e-8, 'atol': 1e-8}
 
 event.terminal = True
 
+# Print initial altitude
+initial_altitude = np.linalg.norm(y0[:3]) - R_earth
+print("Initial Altitude:", initial_altitude)
+
 # Call the ODE solver
-sol= solve_ivp(acceleration, [t0, tf], y0, method='RK45', t_eval=tspan, events=event, **options, dense_output=True)
-#y = odeint(acceleration, y0, tspan)
-#t=tspan
-#Extract the locally extreme altitudes
-#print(radious)
-##altura = np.sqrt(np.sum(radious[:, 0:3]**2, axis=1)) - RE
-#print(altura)
-##max_altitude,imax,min_altitude,imin = extrema(altura)
-
-
-##maxima   = [time_vec[imax], max_altitude];  #Maximum altitudes and times
-##minima   = [time_vec[imin], min_altitude];  #Minimum altitudes and times
-
-#apogee   = sortrows(maxima,1);      #Maxima sorted with time                       
-#perigee  = sortrows(minima,1);      #Minima sorted with time
-
-##apogee = maxima[maxima[:, 0].argsort()]
-##perigee = minima[minima[:, 0].argsort()]
-
-# Set the first value of apogee's altitude to NaN
-#apogee[0, 1] = np.nan
-
-# Plot perigee and apogee history on the same figure
-#plt.figure(1)
-#plt.plot(apogee[:, 0] / days, apogee[:, 1], 'b', linewidth=2, label='Apogee')
-#plt.plot(perigee[:, 0] / days, perigee[:, 1], 'r', linewidth=2, label='Perigee')
-#plt.grid(True, which='both', linestyle='--', linewidth=0.5)
-#plt.xlabel('Time (days)')
-#plt.ylabel('Altitude (km)')
-#plt.ylim([0, 1000])
-#plt.legend()
-#plt.show()
-
-
-
-
-
-
-
-
+sol= solve_ivp(acceleration, [t0, tf], y0, method='RK45', t_eval=tspan, events=event)
+#sol = solve_ivp(f, [t0, tf], [x0, y0, vx0, vy0], t_eval=t, method='RK45')
 
 
 #plot radious vs time
@@ -186,25 +173,6 @@ plt.ylabel('Altitude (km)')
 plt.title('Altitude vs Time')
 plt.show()
 
-# Velocity vs. Time Plot
-velocity_magnitude = np.linalg.norm(sol.y[3:], axis=0)
-
-plt.plot(sol.t, velocity_magnitude)
-plt.xlabel('Time (s)')
-plt.ylabel('Velocity Magnitude (km/s)')
-plt.title('Velocity vs Time')
-plt.ylim(0, max(velocity_magnitude) + 0.1)  # Adjust y-axis limits
-plt.show()
-
-# Eccentricity vs. Time Plot
-eccentricity = sol.y[1]
-
-plt.plot(sol.t, eccentricity)
-plt.xlabel('Time (s)')
-plt.ylabel('Eccentricity')
-plt.title('Eccentricity vs Time')
-plt.ylim(0, 1.1)  # Adjust y-axis limits
-plt.show()
 
 # Remove the file atmosphericlayers_output.csv if it exists
 if os.path.exists('atmosphericlayers_output.csv'):
