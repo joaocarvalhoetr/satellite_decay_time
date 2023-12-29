@@ -11,6 +11,8 @@ from scipy.signal import argrelextrema
 from scipy.integrate import odeint
 from density import atmosphere
 from findpeaks import *
+from trid_plot import *
+from teste_b import *
 
 
 # Read from data.txt, Cd(1st line), e(2nd line), and R_a(3rd line)
@@ -61,6 +63,8 @@ with open('data.txt') as f:
 initial_vec = [h, e, RA, i, w, TA]
 time_vec = []
 radious = []
+
+#orbit_tridimensional(a,T,e,RA ,i,w )
 
 
 # Function to calculate the acceleration
@@ -182,6 +186,102 @@ plt.legend()
 # Display the plot
 plt.show()
 
+###############################################################################################################
+#allows to create a list of apogeus normalized (0-1)
+length = len(maxima_fitted_values)
+for i in range(length):
+    maxima_fitted_values[i]+=R_earth 
+apogeu_list=maxima_fitted_values
+print(length)
+
+#allows to create a list of perigeus normalized (0-1)
+length = len(minima_fitted_values)
+for i in range(length):
+    minima_fitted_values[i]+=R_earth 
+perigeu_list=minima_fitted_values
+
+min_value = np.min(perigeu_list)
+max_value = np.max(apogeu_list)
+
+apogeu_normalized_values = (apogeu_list - min_value) / (max_value - min_value)
+
+perigeu_normalized_values = (perigeu_list - min_value) / (max_value - min_value)
+
+num_parts = 20
+
+# Calculate the length of each part
+part_length = len(apogeu_normalized_values) // num_parts
+
+# Reshape the array into 20 parts
+apogeu_normalized_values = apogeu_normalized_values[:num_parts * part_length].reshape((num_parts, part_length))
+
+# Calculate the average of each part
+apogeu_normalized_values = np.mean(apogeu_normalized_values, axis=1)
+
+apogeu_normalized_values=apogeu_normalized_values[:-4]
+# Print or use the calculated averages as needed
+print(apogeu_normalized_values)
+
+# ta repetido eu sei aind n tive tempo pra mudar 
+
+num_parts = 20
+
+# Calculate the length of each part
+part_length = len(perigeu_normalized_values) // num_parts
+
+# Reshape the array into 20 parts
+perigeu_normalized_values = perigeu_normalized_values[:num_parts * part_length].reshape((num_parts, part_length))
+
+# Calculate the average of each part
+perigeu_normalized_values = np.mean(perigeu_normalized_values, axis=1)
+
+#basicamente como os valores inciais da altura minima sao pessimos decidi tira-los e tirei os ultimos 4 da altura max
+#nao é a melhor aproximacao mas é o q se tem
+perigeu_normalized_values = perigeu_normalized_values[4:]
+# Print or use the calculated averages as needed
+print(perigeu_normalized_values)
+
+
+#create list with excentricidade
+excentricidade_list = (apogeu_normalized_values - perigeu_normalized_values)/(apogeu_normalized_values + perigeu_normalized_values)
+
+print(excentricidade_list)
+
+#create list with semi eixo maior
+
+semi_eixo_maior_list = (apogeu_normalized_values + perigeu_normalized_values)/2
+
+print(semi_eixo_maior_list)
+
+#create a list com os periodos
+
+periodos_list = []
+
+# Calcula o período para cada valor em semi_eixo_maior_list
+for semi_eixo_maior in semi_eixo_maior_list:
+    periodo = 2 * math.pi * math.sqrt(semi_eixo_maior**3 / mu)
+    periodos_list.append(periodo)
+
+min_value = np.min(periodos_list)
+max_value = np.max(periodos_list)
+
+periodos_list_normalized = (periodos_list - min_value) / (max_value - min_value)
+print(periodos_list_normalized)
+
+#este for talvez de pra mudar pra aparecer so os graficos n estranhos, é q isto fica asssim pelos periodso dps serem mt peqeunos
+for i in range(0, len(periodos_list_normalized) - 1, 5): #assim n aparece o valor normalizado zero
+    orbit_tridimensional(semi_eixo_maior_list[i],periodos_list_normalized[i],excentricidade_list[i],RA ,i,w )
+    
+
+
+
+
+# Print or use normalized_values as needed
+#print(apogeu_normalized_values)
+#print(perigeu_normalized_values)
+#tridimensionalPlot(time[maxima]/8640,maxima_fitted_values)
+#print(maxima_fitted_values)
+#print(time[maxima]/8640)
 
 print("a")
 
