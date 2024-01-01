@@ -1,10 +1,10 @@
 import math
-from constants import *
 from scipy.integrate import solve_ivp
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import os
+from atmosphericlayers import *
 from statevectorcalculation import *
 from extrema import extrema
 from scipy.signal import argrelextrema
@@ -15,10 +15,8 @@ from trid_plot import *
 from teste_b import *
 
 
-# Read from data.txt, CD, m, A, R_p, R_a, RA, i, w, TA
+# Read from data.txt, Cd(1st line), e(2nd line), and R_a(3rd line)
 # The structure of the lines in the txt is for example for Cd "Cd: 2.2"
-# After reading the values, compute  e, a, h, T
-
 with open('data.txt') as f:
     lines = f.readlines()
 
@@ -67,6 +65,7 @@ time_vec = []
 radious = []
 
 #orbit_tridimensional(a,T,e,RA ,i,w )
+
 
 # Function to calculate the acceleration
 def acceleration(t, y):
@@ -151,38 +150,31 @@ initial_altitude = np.linalg.norm(y0[:3]) - R_earth
 print("Initial Altitude:", initial_altitude)
 
 # Call the ODE solver
-# For each iteration, call the events function to check if the integration should stop or not.
 
+#sol= solve_ivp(acceleration, [t0, tf], y0, method='RK45', t_eval=tspan, events=event)
 sol = solve_ivp(acceleration, (t0, tf), y0, t_eval=tspan, events=event, method='DOP853')
 
-# Pick all the y values from sol, compute for each y the norm, and subtract the earth radius.
-
+# pick all the y values from sol, compute for each y the norm, and subtract the earth radius
 altitude = np.linalg.norm(sol.y[:3], axis=0) - R_earth
 
-# Time for each iteration
 time = sol.t
-
-# Compute the extrema for the data aquired
 
 [maxima, minima] = find_local_extrema(altitude, time)
 
-# Organize the data for the maxima and minima
-
+# Example usage
 maxima_x = time[maxima]
 maxima_y = altitude[maxima]
 
 minima_x = time[minima]
 minima_y = altitude[minima]
 
-# Fit the data aquiared to a polynomial curve in order to improve the visualization of the graphs
-
-degree = 15  # Degree of the polynomial curve to fit the data
+# Fit curves to maxima and minima
+degree = 15  # You can adjust the degree of the polynomial
 maxima_coefficients, maxima_fitted_values = fit_curve(maxima_x, maxima_y, degree)
 minima_coefficients, minima_fitted_values = fit_curve(minima_x, minima_y, degree)
 
 # Plotting maxima with fitted values
 plt.plot(time[maxima]/8640, maxima_fitted_values, label='Maxima', linestyle='-', color='red')
-
 # Plotting minima with fitted values
 plt.plot(time[minima]/8640, minima_fitted_values, label='Minima', linestyle='-', color='green')
 
