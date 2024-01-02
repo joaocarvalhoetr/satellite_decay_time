@@ -68,8 +68,8 @@ radious = []
 
 #orbit_tridimensional(a,T,e,RA ,i,w )
 
-# Function to calculate the acceleration
-def acceleration(t, y):
+# Function to calculate the velocity and acceleration
+def vel_and_acceleration(t, y):
     r = y[:3]
     v = y[3:]
     drdt = v
@@ -153,7 +153,7 @@ print("Initial Altitude:", initial_altitude)
 # Call the ODE solver
 # For each iteration, call the events function to check if the integration should stop or not.
 
-sol = solve_ivp(acceleration, (t0, tf), y0, t_eval=tspan, events=event, method='DOP853')
+sol = solve_ivp(vel_and_acceleration, (t0, tf), y0, t_eval=tspan, events=event, method='DOP853')
 
 # Pick all the y values from sol, compute for each y the norm, and subtract the earth radius.
 
