@@ -6,16 +6,17 @@ from constants import *
 from findpeaks import *
 from us1976_analyses import *
 import matplotlib.pyplot as plt
+from ciraModel import *
 
-# StudentModel or US1976
+# StudentModel or US1976 or CIRA
 
-method = "US1976"
+method = "CIRA"
 
 CD = 2.2
 m = 100
 A = math.pi * (1/2)**2
 R_a = 939 + R_earth
-R_p = 939 + R_earth
+R_p = 215 + R_earth
 
 # Eccentric anomaly
 e = (R_a - R_p) / (R_a + R_p)
@@ -56,6 +57,8 @@ def f(t, input):
         density = density_US1976(r_norm - R_earth)
     elif method == "StudentModel":
         density = student_model(r_norm - R_earth)
+    elif method == "CIRA":
+        density = density_CIRA(r_norm - R_earth)
 
     P = -CD* density * (1000 * vrel_abs)**2  * A  / (2 *m) * vrel_unit #m/s^2
     g = -mu / r_norm**2 * r_unit # Km/s^2
@@ -98,6 +101,30 @@ def main():
 
         # Fit the data aquiared to a polynomial curve in order to improve the visualization of the graphs
         degree = 10  # Degree of the polynomial curve to fit the data
+        maxima_coefficients, maxima_fitted_values = fit_curve(tmax, max, degree)
+        minima_coefficients, minima_fitted_values = fit_curve(tmin, min, degree)
+        
+        # Plotting maxima with fitted values
+        plt.plot(tmax/86400, maxima_fitted_values, label='Maxima', linestyle='-', color='red')
+
+        # Grid to the plot
+        plt.grid()
+
+        # Plotting minima with fitted values
+        plt.plot(tmin/86400, minima_fitted_values, label='Minima', linestyle='-', color='green')
+        plt.xlabel('Time (days)')
+        plt.ylabel('Altitude (Km)')        
+
+        # Display the plot
+        #fig1.show()
+
+        model_analyses(i_max, i_min, altitude, time)
+
+    if method == "CIRA":
+        fig1 = plt.figure(1)
+
+        # Fit the data aquiared to a polynomial curve in order to improve the visualization of the graphs
+        degree = 2  # Degree of the polynomial curve to fit the data
         maxima_coefficients, maxima_fitted_values = fit_curve(tmax, max, degree)
         minima_coefficients, minima_fitted_values = fit_curve(tmin, min, degree)
         

@@ -6,7 +6,7 @@ def interpolate_values(h_values, r_values, given_h):
         inter_r = np.interp(given_h, h_values, r_values)
         return inter_r
 
-def atmosphere2(z):
+def density_CIRA(z):
     # Geometric altitudes (km):
     h = np.array([0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,
                   380,400,420,440,460,480,500,520,540,560,580
@@ -130,11 +130,3 @@ def atmosphere2(z):
     if z > 900:
          return 6.59E-15
 
-
-
-
-
-
-    
-
-print(atmosphere2(850))
