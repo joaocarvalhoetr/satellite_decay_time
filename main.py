@@ -15,8 +15,8 @@ method = "CIRA"
 CD = 2.2
 m = 100
 A = math.pi * (1/2)**2
-R_a = 939 + R_earth
-R_p = 215 + R_earth
+R_a = 500 + R_earth #939
+R_p = 500 + R_earth #215
 
 # Eccentric anomaly
 e = (R_a - R_p) / (R_a + R_p)

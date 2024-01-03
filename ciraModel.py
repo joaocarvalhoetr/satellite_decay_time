@@ -23,19 +23,22 @@ def density_CIRA(z):
 
     if z <=180 :
         density=interpolate_values(h,r,z)
-        print(density)
         return density
     
-    if z>180 or z<=340 :
+    if z >=500 :
+        density=interpolate_values(h,r,z)
+        return density
+    
+    if z>180 or z<500 :
         # Select the range of data for fitting
         fit_range_start = 180
-        fit_range_end = 340
+        fit_range_end = 500
         mask = (h >= fit_range_start) & (h <= fit_range_end)
         fit_h = h[mask]
         fit_r = r[mask] 
 
         # Choose the degree of the polynomial (2 in this case)
-        degree = 2
+        degree = 10
 
         # Fit a polynomial to the data
         coefficients = np.polyfit(fit_h, fit_r, degree)
@@ -43,87 +46,6 @@ def density_CIRA(z):
         # Create a polynomial function based on the coefficients
         poly_function = np.poly1d(coefficients)
         
-        density = poly_function(z)
-        
-        return density
-
-    if z>340 or z<=480 :
-        # Select the range of data for fitting
-        fit_range_start = 340
-        fit_range_end = 480
-        mask = (h >= fit_range_start) & (h <= fit_range_end)
-        fit_h = h[mask]
-        fit_r = r[mask] 
-
-        # Choose the degree of the polynomial (2 in this case)
-        degree = 2
-
-        # Fit a polynomial to the data
-        coefficients = np.polyfit(fit_h, fit_r, degree)
-
-        # Create a polynomial function based on the coefficients
-        poly_function = np.poly1d(coefficients)
-
-        density = poly_function(z)
-        return density
-    
-    if z>480 or z<=640 :
-        # Select the range of data for fitting
-        fit_range_start = 480
-        fit_range_end = 640
-        mask = (h >= fit_range_start) & (h <= fit_range_end)
-        fit_h = h[mask]
-        fit_r = r[mask] 
-
-        # Choose the degree of the polynomial (2 in this case)
-        degree = 2
-
-        # Fit a polynomial to the data
-        coefficients = np.polyfit(fit_h, fit_r, degree)
-
-        # Create a polynomial function based on the coefficients
-        poly_function = np.poly1d(coefficients)
-
-        density = poly_function(z)
-        return density
-
-    if z>640 or z<=840 :
-        # Select the range of data for fitting
-        fit_range_start = 640
-        fit_range_end = 840
-        mask = (h >= fit_range_start) & (h <= fit_range_end)
-        fit_h = h[mask]
-        fit_r = r[mask] 
-
-        # Choose the degree of the polynomial (2 in this case)
-        degree = 2
-
-        # Fit a polynomial to the data
-        coefficients = np.polyfit(fit_h, fit_r, degree)
-
-        # Create a polynomial function based on the coefficients
-        poly_function = np.poly1d(coefficients)
-
-        density = poly_function(z)
-        return density
-
-    if z>840 or z<=900 :
-        # Select the range of data for fitting
-        fit_range_start = 840
-        fit_range_end = 900
-        mask = (h >= fit_range_start) & (h <= fit_range_end)
-        fit_h = h[mask]
-        fit_r = r[mask] 
-
-        # Choose the degree of the polynomial (2 in this case)
-        degree = 2
-
-        # Fit a polynomial to the data
-        coefficients = np.polyfit(fit_h, fit_r, degree)
-
-        # Create a polynomial function based on the coefficients
-        poly_function = np.poly1d(coefficients)
-
         density = poly_function(z)
         return density
 
