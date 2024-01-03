@@ -74,14 +74,6 @@ def vel_and_acceleration(t, y):
     v = y[3:]
     drdt = v
 
-    # Constants
-    mu = 398600  # Gravitational parameter in km^3/s^2
-    R_earth = 6378  # Earth radius in km
-    wE = np.array([0, 0, 7.2921159e-5])  # Earth's angular velocity in rad/s
-    CD = 2.2  # Drag coefficient
-    A = np.pi / 4 * (1 ** 2)  # Frontal area in m^2
-    m = 100  # Mass in kg
-
     # Calculate atmospheric velocity
     v_atmosphere = np.cross(wE, r)
 
@@ -157,7 +149,7 @@ sol = solve_ivp(vel_and_acceleration, (t0, tf), y0, t_eval=tspan, events=event, 
 altitude = np.linalg.norm(sol.y[:3], axis=0) - R_earth
 
 # Time for each iteration
-time = sol.t
+time = sol.t *10
 
 # Compute the extrema for the data aquired
 
@@ -178,10 +170,10 @@ maxima_coefficients, maxima_fitted_values = fit_curve(maxima_x, maxima_y, degree
 minima_coefficients, minima_fitted_values = fit_curve(minima_x, minima_y, degree)
 
 # Plotting maxima with fitted values
-plt.plot(time[maxima]/8640, maxima_fitted_values, label='Maxima', linestyle='-', color='red')
+plt.plot(time[maxima]/86400, maxima_fitted_values, label='Maxima', linestyle='-', color='red')
 
 # Plotting minima with fitted values
-plt.plot(time[minima]/8640, minima_fitted_values, label='Minima', linestyle='-', color='green')
+plt.plot(time[minima]/86400, minima_fitted_values, label='Minima', linestyle='-', color='green')
 
 # Adding labels and legend
 plt.xlabel('Time (days)')  # Replace 'Time' with the actual label for the x-axis

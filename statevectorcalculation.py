@@ -28,16 +28,4 @@ def sv_from_coe(coe, mu):
 
     return r, v
 
-# Example data
-deg = np.pi / 180
-mu = 398600
-h = 80000
-e = 1.4
-RA = 40 * deg
-incl = 30 * deg
-w = 60 * deg
-TA = 30 * deg
-
-coe = [h, e, RA, incl, w, TA]
-
 
