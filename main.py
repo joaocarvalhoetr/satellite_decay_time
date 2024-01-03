@@ -142,7 +142,7 @@ def main():
         # Display the plot
         #fig1.show()
 
-        model_analyses(i_max, i_min, altitude, time)
+        model_analyses(maxima_fitted_values, minima_fitted_values, tmax, tmin)
 
     elif method == "StudentModel":
         fig1 = plt.figure(1)
