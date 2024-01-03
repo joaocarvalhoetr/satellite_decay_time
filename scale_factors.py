@@ -1,4 +1,5 @@
 import math
+from constants import *
 
 # Given constants
 R_air = 287.05  # gas constant for air
@@ -35,7 +36,7 @@ def scale_factor_calculate(altitude):
     # Compute the temperature for the given altitude
     temperature = temperature_calculate(altitude)
     # Compute the scale factor for the given altitude
-    scale_factor = (R_idealgas * temperature) / g_0
+    scale_factor = (R_air * temperature) / g_0
     return scale_factor
 
 def density_calculate(altitude):
