@@ -1,7 +1,7 @@
 import math
 
 # Given constants
-R_idealgas = 287.05  # gas constant for air
+R_air = 287.05  # gas constant for air
 g_0 = 9.80665  # sea level gravitational acceleration
 r_0 = 1.225 # sea level density
 
