@@ -14,7 +14,7 @@ R0 = altitude + R_earth
 def f(t, y):
     x, y, vx, vy = y
     r = math.sqrt(x**2 + y**2)
-    vrel = math.sqrt(vx**2 + vy**2)  - omega_earth*r
+    vrel = math.sqrt(vx**2)  - omega_earth*r
 
     ax = - 0.5* density_calculate(r- R_earth)* (vrel)**2 * Cd * A/ m  
     ay = -mu/r**2
@@ -34,7 +34,7 @@ def main():
     dt = 0.1
     t = np.arange(t0, tf, dt)
 
-    sol = solve_ivp(f, [t0, tf], [x0, y0, vx0, vy0], t_eval=t, method='RK45')
+    sol = solve_ivp(f, [t0, tf], [x0, y0, vx0, vy0], method='DOP853')
     print(sol)    
     r = np.sqrt(sol.y[0]**2 + sol.y[1]**2) - R_earth
 

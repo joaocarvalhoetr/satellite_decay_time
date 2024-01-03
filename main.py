@@ -115,8 +115,8 @@ def event(t, y):
 
 # Integration Settings
 
-t0 = 1e-100
-tf = 120 * days
+t0 = 0
+tf = 150 * days
 
 R0, V0 = sv_from_coe(initial_vec, mu)
 
@@ -131,7 +131,7 @@ nout = 40000
 tspan = np.linspace(t0, tf, nout)
 
 # Set error tolerances, initial step size, and termination event:
-options = {'rtol': 1e-15, 'atol': 1e-15}
+options = {'rtol': 1e-7, 'atol': 1e-7}
 
 event.terminal = True
 
@@ -142,7 +142,7 @@ print("Initial Altitude:", initial_altitude)
 # Call the ODE solver
 # For each iteration, call the events function to check if the integration should stop or not.
 
-sol = solve_ivp(vel_and_acceleration, (t0, tf), y0, t_eval=tspan, events=event, method='DOP853')
+sol = solve_ivp(vel_and_acceleration, (t0, tf), y0, events=event, method='DOP853')
 
 # Pick all the y values from sol, compute for each y the norm, and subtract the earth radius.
 
