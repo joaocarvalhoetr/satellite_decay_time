@@ -114,9 +114,6 @@ def event(t, y):
     
     #altitude triggered
 
-    # append time and altitude to the lists
-    time_vec.append(t)
-    radious.append(altitude)
 
     if altitude <= 0:
         # if the altitude is less than or equal to 0, the integration stops
