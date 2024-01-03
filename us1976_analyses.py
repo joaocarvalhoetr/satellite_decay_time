@@ -2,10 +2,10 @@ from constants import *
 import matplotlib.pyplot as plt
 from findpeaks import *
 
-def model_analyses(i_max, i_min, altitude, time):
+def model_analyses(maxima_fitted_values, minima_fitted_values, tmax, tmin):
 
-    l_max = len(i_max)
-    l_min = len(i_min)
+    l_max = len(maxima_fitted_values)
+    l_min = len(minima_fitted_values)
 
     e_values = []
     a_values = []
@@ -13,15 +13,17 @@ def model_analyses(i_max, i_min, altitude, time):
 
     # Compare the lenght of max and min and remove the excess of the longest one
     if l_max > l_min:
-        i_max = i_max[:l_min]
+        maxima_fitted_values = maxima_fitted_values[:l_min]
+        tmax = tmax[:l_min]
     elif l_min > l_max:
-        i_min = i_min[:l_max]
+        minima_fitted_values = minima_fitted_values[:l_max]
+        tmin = tmin[:l_max]
 
-    for i in range(len(i_min)):
-        R_a = altitude[int(i_max[i])] + R_earth
-        R_p = altitude[int(i_min[i])] + R_earth
+    for i in range(len(maxima_fitted_values)):
+        R_a = maxima_fitted_values[i] + R_earth
+        R_p = minima_fitted_values[i] + R_earth
 
-        time_list.append(time[int(i_max[i])]/86400)
+        time_list.append(tmax[i]/86400)
 
         e = (R_a - R_p) / (R_a + R_p)
         e_values.append(e)

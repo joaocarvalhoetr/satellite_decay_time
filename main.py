@@ -10,13 +10,13 @@ from ciraModel import *
 
 # StudentModel or US1976 or CIRA
 
-method = "CIRA"
+method = "US1976"
 
 CD = 2.2
 m = 100
 A = math.pi * (1/2)**2
-R_a = 939 + R_earth
-R_p = 215 + R_earth
+R_a = 939 + R_earth #939
+R_p = 500 + R_earth #215
 
 # Eccentric anomaly
 e = (R_a - R_p) / (R_a + R_p)
@@ -118,13 +118,13 @@ def main():
         # Display the plot
         #fig1.show()
 
-        model_analyses(i_max, i_min, altitude, time)
+        model_analyses(maxima_fitted_values, minima_fitted_values, tmax, tmin)
 
     if method == "CIRA":
         fig1 = plt.figure(1)
 
         # Fit the data aquiared to a polynomial curve in order to improve the visualization of the graphs
-        degree = 2  # Degree of the polynomial curve to fit the data
+        degree = 10  # Degree of the polynomial curve to fit the data
         maxima_coefficients, maxima_fitted_values = fit_curve(tmax, max, degree)
         minima_coefficients, minima_fitted_values = fit_curve(tmin, min, degree)
         
