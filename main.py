@@ -1,113 +1,34 @@
 import math
-from constants import *
 from scipy.integrate import solve_ivp
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-import os
-from statevectorcalculation import *
-from extrema import extrema
-from scipy.signal import argrelextrema
-from scipy.integrate import odeint
-from density import atmosphere
+from density import *
+from constants import *
 from findpeaks import *
-from trid_plot import *
-from teste_b import *
-from ciraModel import *
+from us1976_analyses import *
+import matplotlib.pyplot as plt
 
-# Read from data.txt, CD, m, A, R_p, R_a, RA, i, w, TA
-# The structure of the lines in the txt is for example for Cd "Cd: 2.2"
-# After reading the values, compute  e, a, h, T
+# StudentModel or US1976
 
-with open('data.txt') as f:
-    lines = f.readlines()
+method = "US1976"
 
-    # Drag Coefficient
-    CD = float(lines[0].split()[1])
+CD = 2.2
+m = 100
+A = math.pi * (1/2)**2
+R_a = 939 + R_earth
+R_p = 939 + R_earth
 
-    # Mass of the satellite
-    m = float(lines[1].split()[1])
+# Eccentric anomaly
+e = (R_a - R_p) / (R_a + R_p)
 
-    # Area of the satellite
-    A = float(lines[2].split()[1])
+# Semi-major axis
+a = (R_a + R_p) / 2
 
-    # Eccentricity
-    R_p = float(lines[3].split()[1]) + R_earth
-
-    # Apoapsis radius
-    R_a = float(lines[4].split()[1]) + R_earth
-
-    # Right ascension of the ascending node
-    RA = float(lines[5].split()[1]) * deg
-
-    # Inclination
-    i = float(lines[6].split()[1]) * deg
-
-    # Argument of perigee
-    w = float(lines[7].split()[1]) * deg
-
-    # True Anomaly
-    TA = float(lines[8].split()[1]) * deg
-
-    # Eccentric anomaly
-    e = (R_a - R_p) / (R_a + R_p)
-
-    # Semi-major axis
-    a = (R_a + R_p) / 2
-
-    # Angular momentum
-    h = math.sqrt(mu * a * (1 - e ** 2))
-
-    # Period
-    T = 2 * math.pi * math.sqrt(a ** 3 / mu)
-
-# Calculate initial state vector
-initial_vec = [h, e, RA, i, w, TA]
-time_vec = []
-radious = []
-
-#orbit_tridimensional(a,T,e,RA ,i,w )
-
-# Function to calculate the velocity and acceleration
-def vel_and_acceleration(t, y):
-    r = y[:3]
-    v = y[3:]
-    drdt = v
-
-    # Calculate atmospheric velocity
-    v_atmosphere = np.cross(wE, r)
-
-    # Calculate relative velocity
-    v_rel = v - v_atmosphere
-
-    # Unitary vector
-    vrel_unit = v_rel / np.linalg.norm(v_rel)
-
-    # Compute the absolute value of the relative velocity
-    vrel_abs = np.linalg.norm(v_rel)
-
-    # Calculate density
-    density = atmosphere2(np.linalg.norm(r) - R_earth)  # Adjust this value or use a function to compute density based on altitude
-
-    #print(density)
-
-    # Calculate drag acceleration
-    P = -CD *A/m * density * (1000*vrel_abs)**2/2 * vrel_unit
-
-    # Calculate gravitational acceleration
-    a0 = (-mu / float(np.linalg.norm(r))**3) * np.array(r)
-
-    # Calculate the total acceleration
-    dvdt = a0 + P/1000   
-
-    return np.concatenate((drdt, dvdt))
+# Considering the satellite starts its journey in the apoapsis
+R0 = R_a
 
 # Function to detect the end of the integration
 def event(t, y):
-    altitude = np.linalg.norm(y[:3]) - R_earth
-    
-    #altitude triggered
-
+    altitude = np.linalg.norm(y[:2]) - R_earth
 
     if altitude <= 0:
         # if the altitude is less than or equal to 0, the integration stops
@@ -115,73 +36,102 @@ def event(t, y):
         return 0
     return 1
 
-# Integration Settings
-
-t0 = 0
-tf = 150 * days
-
-R0, V0 = sv_from_coe(initial_vec, mu)
-
-# initial state vector
-y0 = [R0[0][0], R0[0][1], R0[0][2], V0[0][0], V0[0][1], V0[0][2]]
+def f(t, input):
+    x, y, vx, vy = input
+    r = (x, y)
+    v = (vx, vy)
+    r_unit = r / np.linalg.norm(r)
+    r_norm = np.linalg.norm(r)
+    r_perpend_unit = np.array([-r_unit[1], r_unit[0]])
 
 
-# Number of points to output
-nout = 40000
+    v_atm = omega_earth * r_norm
 
-# Integration Time Interval from t0 to tf with nout points
-tspan = np.linspace(t0, tf, nout)
+    vrel = v - float(v_atm) * r_perpend_unit
+    
+    vrel_abs = np.linalg.norm(vrel)
+    vrel_unit = vrel / vrel_abs
 
-# Set error tolerances, initial step size, and termination event:
-options = {'rtol': 1e-7, 'atol': 1e-7}
+    if method == "US1976":
+        density = density_US1976(r_norm - R_earth)
+    elif method == "StudentModel":
+        density = student_model(r_norm - R_earth)
 
-event.terminal = True
+    P = -CD* density * (1000 * vrel_abs)**2  * A  / (2 *m) * vrel_unit #m/s^2
+    g = -mu / r_norm**2 * r_unit # Km/s^2
+    a_fin = P / 1000 + g #Km/s^2
 
-# Print initial altitude
-initial_altitude = np.linalg.norm(y0[:3]) - R_earth
-print("Initial Altitude:", initial_altitude)
+    return [vx, vy, a_fin[0], a_fin[1]]
 
-# Call the ODE solver
-# For each iteration, call the events function to check if the integration should stop or not.
+def main():
+    x0 = 0
+    y0 = R0
 
-sol = solve_ivp(vel_and_acceleration, (t0, tf), y0, events=event, method='DOP853')
+    # vis-viva equation
+    vx0 = math.sqrt(mu * (2 / (y0) - 1 / a)) #Km/s
+    vy0 = 0
 
-# Pick all the y values from sol, compute for each y the norm, and subtract the earth radius.
+    t0 = 1e-10
+    tf = 120 * days
 
-altitude = np.linalg.norm(sol.y[:3], axis=0) - R_earth
+    # Set error tolerances, initial step size, and termination event:
+    options = {'rtol': 1e-7, 'atol': 1e-7}
 
-# Time for each iteration
-time = sol.t *10
+    event.terminal = True
 
-# Compute the extrema for the data aquired
+    sol = solve_ivp(f, [t0, tf], [x0, y0, vx0, vy0], method='DOP853', events=event)
 
-[maxima, minima] = find_local_extrema(altitude, time)
+    # Compute the altitudes in km in norm
+    altitude = np.linalg.norm(sol.y[:2], axis=0) - R_earth
 
-# Organize the data for the maxima and minima
+    time = sol.t * 10
+    
+    # Write statevector to a file
+    np.savetxt("statevector.txt", sol.y)
 
-maxima_x = time[maxima]
-maxima_y = altitude[maxima]
+    [i_max, i_min] = find_local_extrema(altitude, time)
+    [max, min] = [altitude[i_max], altitude[i_min]]
+    [tmax, tmin] = [time[i_max], time[i_min]]
 
-minima_x = time[minima]
-minima_y = altitude[minima]
+    if method == "US1976":
+        fig1 = plt.figure(1)
 
-# Fit the data aquiared to a polynomial curve in order to improve the visualization of the graphs
+        # Fit the data aquiared to a polynomial curve in order to improve the visualization of the graphs
+        degree = 10  # Degree of the polynomial curve to fit the data
+        maxima_coefficients, maxima_fitted_values = fit_curve(tmax, max, degree)
+        minima_coefficients, minima_fitted_values = fit_curve(tmin, min, degree)
+        
+        # Plotting maxima with fitted values
+        plt.plot(tmax/86400, maxima_fitted_values, label='Maxima', linestyle='-', color='red')
 
-degree = 15  # Degree of the polynomial curve to fit the data
-maxima_coefficients, maxima_fitted_values = fit_curve(maxima_x, maxima_y, degree)
-minima_coefficients, minima_fitted_values = fit_curve(minima_x, minima_y, degree)
+        # Grid to the plot
+        plt.grid()
 
-# Plotting maxima with fitted values
-plt.plot(time[maxima]/86400, maxima_fitted_values, label='Maxima', linestyle='-', color='red')
+        # Plotting minima with fitted values
+        plt.plot(tmin/86400, minima_fitted_values, label='Minima', linestyle='-', color='green')
+        plt.xlabel('Time (days)')
+        plt.ylabel('Altitude (Km)')        
 
-# Plotting minima with fitted values
-plt.plot(time[minima]/86400, minima_fitted_values, label='Minima', linestyle='-', color='green')
+        # Display the plot
+        #fig1.show()
 
-# Adding labels and legend
-plt.xlabel('Time (days)')  # Replace 'Time' with the actual label for the x-axis
-plt.ylabel('Fitted Values')  # Replace 'Fitted Values' with the actual label for the y-axis
-plt.legend()
+        model_analyses(i_max, i_min, altitude, time)
 
-# Display the plot
-plt.show()
+    elif method == "StudentModel":
+        fig1 = plt.figure(1)
 
+        plt.plot(time/86400, altitude, label='Minima', linestyle='-', color='green')
+
+        # Grid to the plot
+        plt.grid()
+
+        # Adding labels and legend
+
+        plt.xlabel('Time (days)')
+        plt.ylabel('Altitude (Km)')
+
+        #fig1.show()
+
+        
+
+main()

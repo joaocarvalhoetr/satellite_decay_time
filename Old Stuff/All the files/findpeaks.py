@@ -1,5 +1,5 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def find_local_extrema(altitude, time):
     # Calculate the derivative

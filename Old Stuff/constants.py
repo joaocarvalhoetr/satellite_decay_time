@@ -10,4 +10,4 @@ g_0 = 9.80665  # Acceleration due to gravity at Earth's surface in m/s^2
 rho_0 = 1.225  # Standard sea-level atmospheric density in kg/m^3
 deg = math.pi / 180  # Conversion factor from degrees to radians
 omega_earth = 2 * math.pi / (24 * 3600)  # Earth's angular velocity in rad/s
-wE = 7.2921159e-5  # Earth's angular velocity vector in rad/s
+wE = [0, 0, 7.2921159e-5]  # Earth's angular velocity vector in rad/s
