@@ -2,7 +2,7 @@ import numpy as np
 import math
 from constants import *
 
-#Student Made
+#Student Model using Scale Factors
 
 # Given constants
 R_air = 287.05  # gas constant for air
