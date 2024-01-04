@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def find_local_extrema(altitude, time):
     # Calculate the derivative
     derivative = np.diff(altitude)
@@ -30,14 +29,3 @@ def fit_curve(x, y, degree):
     fitted_values = np.polyval(coefficients, x)
 
     return coefficients, fitted_values
-
-def plot_altitude_and_fit(x, y, fitted_values, title):
-    plt.figure(figsize=(8, 6))
-    plt.plot(x, y, label='Altitude Data', marker='o', linestyle='-', color='blue')
-    plt.plot(x, fitted_values, label='Fit Curve', linestyle='--', color='red')
-    plt.scatter(x, y, color='blue')  # Scatter plot to highlight data points
-    plt.title(title)
-    plt.xlabel('Time')
-    plt.ylabel('Altitude')
-    plt.legend()
-    plt.show()
