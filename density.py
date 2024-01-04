@@ -97,6 +97,9 @@ def density_US1976(z):
 class MyError(Exception):
     pass
 
+
+# Jachia+Gram
+
 def density_gram(z, T_exo):
     # Geometric Altitudes
     h_ja = np.array([145, 150, 155, 160, 170, 180, 190, 200, 210, 220,
