@@ -157,13 +157,7 @@ r_gram = np.array([1.225, 9.923e-1, 8.048e-1, 6.525e-1, 5.287e-1, 4.226e-1, 3.29
         z = 0
          
  # Determine the interpolation interval:
-for j in range(len(r_selected)-1):
-        if h[j] <= z < h[j+1]:
-            i = j
-            break
-        elif z == 1000:  # Handle the case when z is exactly 1000
-            i = 26
-
+     r_interpolated = np.interp(z, h_final, r_final)
 
 
 
