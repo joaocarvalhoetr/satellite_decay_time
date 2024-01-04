@@ -91,9 +91,6 @@ def main():
     altitude = np.linalg.norm(sol.y[:2], axis=0) - R_earth
 
     time = sol.t * 10
-    
-    # Write statevector to a file
-    np.savetxt("statevector.txt", sol.y)
 
     [i_max, i_min] = find_local_extrema(altitude, time)
     [max, min] = [altitude[i_max], altitude[i_min]]
@@ -148,14 +145,14 @@ def main():
         model_analyses(maxima_fitted_values, minima_fitted_values, tmax, tmin)
 
     elif method == "StudentModel":
-        plt.plot(time/86400, altitude, label='Minima', linestyle='-', color='green')
+        plt.plot(time/3600, altitude, label='Minima', linestyle='-', color='green')
 
         # Grid to the plot
         plt.grid()
 
         # Adding labels and legend
 
-        plt.xlabel('Time (days)')
+        plt.xlabel('Time (hours)')
         plt.ylabel('Altitude (Km)')
 
         plt.show()
