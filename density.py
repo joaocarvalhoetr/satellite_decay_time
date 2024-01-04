@@ -158,7 +158,7 @@ def density_jacchia(z, T_exo):
                        2.919e-7, 2.033e-7,
                        1.436e-7, 1.035e-7, 7.554e-8, 5.564e-8, 4.309e-8, 3.331e-8, 2.602e-8, 
                        2.057e-8, 1.650e-8,
-                       1,342e-8, 1.106e-8, 9.920e-9, 7.773e-9, 6.618e-9, 5.688e-9, 4.929e-9, 
+                       1.342e-8, 1.106e-8, 9.920e-9, 7.773e-9, 6.618e-9, 5.688e-9, 4.929e-9, 
                        4.305e-9 ])
 
     # Select the correct array for the desired exospheric temperature
