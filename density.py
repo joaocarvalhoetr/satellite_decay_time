@@ -93,12 +93,14 @@ def density_US1976(z):
 
     return density
     
-# Jacchia
 
 class MyError(Exception):
     pass
 
-def density_jacchia(z, T_exo):
+
+# Jachia+Gram
+
+def density_gram(z, T_exo):
     # Geometric Altitudes
     h_ja = np.array([145, 150, 155, 160, 170, 180, 190, 200, 210, 220,
                      230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 
@@ -116,9 +118,9 @@ def density_jacchia(z, T_exo):
                           4.06e-10, 3.34e-10, 2.79e-10, 2.36e-10, 2.02e-10, 1.75e-10, 1.52e-10, 1.33e-10, 
                           1.17e-10, 1.04e-10, 9.19e-11, 8.19e-11, 7.32e-11, 6.55e-11, 5.89e-11, 5.30e-11, 
                           4.78e-11, 4.32e-11, 3.91e-11, 3.54e-11, 2.92e-11, 2.43e-11, 2.02e-11, 1.70e-11, 
-                          1.43e-11, 1.21e-11, 1.02e-11, 8.70e-12, 7.43e-12,
-                          7.43e-12, 6.36e-12, 5.46e-12, 4.70e-12, 4.06e-12, 3.51e-12, 3.04e-12, 2.64e-12, 
-                          2.30e-12, 2.01e-12, 1.75e-12, 1.54e-12, 1.35e-12, 1-18e-12, 1-04e-12, 9.16e-13, 
+                          1.43e-11, 1.21e-11, 1.02e-11, 8.70e-12, 7.43e-12, 6.36e-12, 5.46e-12, 4.70e-12, 
+                          4.06e-12, 3.51e-12, 3.04e-12, 2.64e-12, 2.30e-12, 2.01e-12, 1.75e-12, 1.54e-12, 
+                          1.35e-12, 1-18e-12, 1-04e-12, 9.16e-13, 
                           8.08e-13, 7.13e-13, 6.31e-13, 5.58e-13, 4.95e-13, 4.39e-13])
 
     # Corresponding densities (kg/m^3) for T_Exosphere = 1500k
@@ -203,4 +205,3 @@ def density_jacchia(z, T_exo):
         density = poly_function(z)
         return density
 
-print(density_jacchia(150, 2400))
