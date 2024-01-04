@@ -102,22 +102,27 @@ def density_US1976(z):
 def density_gram(z, T_exo):
 
 #Geometric Altitudes
-h_met = np.array([145, 150, 155, 160, 170, 180, 190, 200, 210, 220,
+h_ja = np.array([145, 150, 155, 160, 170, 180, 190, 200, 210, 220,
  230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 
 370, 380, 390, 400, 420, 440, 460, 480, 500, 520, 540, 560, 580, 600, 620,
- 640, 660, 680, 700, 720, 740, 760, 780, 800, 820, 840, 860, 880, 900, 920, 940, 960, 980, 1000)
+ 640, 660, 680, 700, 720, 740, 760, 780, 800, 820, 840, 860, 880, 900, 920, 940, 960, 980, 1000])
 
 h_gram = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 
 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96,
  98, 100, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120, 122, 124, 126, 128, 130, 132, 134, 136, 138, 140])
 
  # Corresponding densities (kg/m^3) for T_Exosphere = 2400k
-r_met_2400 = np.array([3.39e-9 , 2.63e-9, 2.08e-9, 1.69e-9, 1.17e-9, 8.48e-10, 6.44e-10, 5.05e-10,
+r_ja_2400 = np.array([3.39e-9 , 2.63e-9, 2.08e-9, 1.69e-9, 1.17e-9, 8.48e-10, 6.44e-10, 5.05e-10,
 4.06e-10, 3.34e-10, 2.79e-10, 2.36e-10, 2.02e-10, 1.75e-10, 1.52e-10, 1.33e-10, 1.17e-10, 1.04e-10,
 9.19e-11, 8.19e-11, 7.32e-11, 6.55e-11, 5.89e-11, 5.30e-11, 4.78e-11, 4.32e-11, 3.91e-11, 3.54e-11,
 2.92e-11, 2.43e-11, 2.02e-11, 1.70e-11, 1.43e-11, 1.21e-11, 1.02e-11, 8.70e-12, 7.43e-12,
 7.43e-12, 6.36e-12, 5.46e-12, 4.70e-12, 4.06e-12, 3.51e-12, 3.04e-12, 2.64e-12, 2.30e-12, 2.01e-12, 1.75e-12,1.54e-12,
 1.35e-12, 1-18e-12, 1-04e-12, 9.16e-13, 8.08e-13, 7.13e-13, 6.31e-13, 5.58e-13, 4.95e-13, 4.39e-13])
+
+# Correspomding densities (kg/m^3) for T_Exosphere = 1500k
+
+# Correspomding densities (kg/m^3) for T_Exosphere = 600k
+
 
 
 # Corresponding densities (kg/m^3) for troposhere and stratosphere
@@ -132,17 +137,17 @@ r_gram = np.array([1.225, 9.923e-1, 8.048e-1, 6.525e-1, 5.287e-1, 4.226e-1, 3.29
 
 # Select the correct array for the desired exospheric temperature
      if T_exo = 2400:
-          r_met_selected = r_met_2400
+          r_ja_selected = r_ja_2400
      elif T_exo = 1500 :
-          r_met_selected = r_met_1500
+          r_ja_selected = r_ja_1500
      elif T_exo = 600 :
-          r_met_selected = r_met_600
+          r_ja_selected = r_ja_600
      else  raise MyError("Exospheric Temperature is not valid.")
 
 
 # Combine desired arrays
-     r_final = np.concatenate((r_gram, ))
-     h_final = np.concatenate((h_gram, h_met))
+     r_final = np.concatenate((r_gram, r_ja_selected))
+     h_final = np.concatenate((h_gram, h_ja))
 
 
 # Handle altitudes outside of the range:
