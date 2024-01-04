@@ -100,7 +100,7 @@ class MyError(Exception):
 
 # Jachia+Gram
 
-def density_gram(z, T_exo):
+def density_jacchia(z, T_exo):
     # Geometric Altitudes
     h_ja = np.array([145, 150, 155, 160, 170, 180, 190, 200, 210, 220,
                      230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 
@@ -205,3 +205,4 @@ def density_gram(z, T_exo):
         density = poly_function(z)
         return density
 
+print(density_jacchia(250, 1500))
