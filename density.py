@@ -4,11 +4,6 @@ from constants import *
 
 #Student Model using Scale Factors
 
-# Given constants
-R_air = 287.05  # gas constant for air
-g_0 = 9.80665  # sea level gravitational acceleration
-r_0 = 1.225 # sea level density
-
 # Temperature data from the initial table
 T = [288.15, 216.65, 216.65, 228.65, 270.65, 270.65, 214.65, 186.946,
      210.02, 257, 349.49, 892.79, 1022.2, 1103.4, 1205.4, 1322.3,
@@ -54,7 +49,7 @@ def student_model(altitude):
 
     i = max(0, i)  # Ensure the index is not negative
     # Compute the density for the given altitude
-    density = r_0 * math.exp(-(altitude*1000)/ scale_factor)
+    density = rho_0 * math.exp(-(altitude*1000)/ scale_factor)
     return density
 
 
