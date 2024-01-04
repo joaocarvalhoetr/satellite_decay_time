@@ -204,5 +204,3 @@ def density_jacchia(z, T_exo):
         
         density = poly_function(z)
         return density
-
-print(density_jacchia(250, 1500))

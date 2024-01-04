@@ -10,7 +10,7 @@ from ciraModel import *
 
 # StudentModel or US1976 or CIRA or "Jacchia"
 
-method = "Jacchia"
+method = "StudentModel"
 
 CD = 2.2
 m = 100
@@ -148,8 +148,6 @@ def main():
         model_analyses(maxima_fitted_values, minima_fitted_values, tmax, tmin)
 
     elif method == "StudentModel":
-        fig1 = plt.figure(1)
-
         plt.plot(time/86400, altitude, label='Minima', linestyle='-', color='green')
 
         # Grid to the plot
@@ -160,7 +158,7 @@ def main():
         plt.xlabel('Time (days)')
         plt.ylabel('Altitude (Km)')
 
-        #fig1.show()
+        plt.show()
 
     elif method == "Jacchia":
         fig1 = plt.figure(1)
