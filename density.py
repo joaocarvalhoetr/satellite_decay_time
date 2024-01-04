@@ -99,7 +99,7 @@ def density_US1976(z):
     return density
      
 #Gram
-def density_gram(z):
+def density_gram(z, T_exo):
 
 #Geometric Altitudes
 h_met = np.array([145, 150, 155, 160, 170, 180, 190, 200, 210, 220,
@@ -130,6 +130,21 @@ r_gram = np.array([1.225, 9.923e-1, 8.048e-1, 6.525e-1, 5.287e-1, 4.226e-1, 3.29
 1.436e-7, 1.035e-7, 7.554e-8, 5.564e-8, 4.309e-8, 3.331e-8, 2.602e-8, 2.057e-8, 1.650e-8,
 1,342e-8, 1.106e-8, 9.920e-9, 7.773e-9, 6.618e-9, 5.688e-9, 4.929e-9, 4.305e-9 ])
 
+# Select the correct array for the desired exospheric temperature
+     if T_exo = 2400:
+          r_met_selected = r_met_2400
+     elif T_exo = 1500 :
+          r_met_selected = r_met_1500
+     elif T_exo = 600 :
+          r_met_selected = r_met_600
+     else  raise MyError("Exospheric Temperature is not valid.")
+
+
+# Combine desired arrays
+     r_final = np.concatenate((r_gram, ))
+     h_final = np.concatenate((h_gram, h_met))
+
+
 # Handle altitudes outside of the range:
     if z > 1000:
         z = 1000
@@ -137,7 +152,7 @@ r_gram = np.array([1.225, 9.923e-1, 8.048e-1, 6.525e-1, 5.287e-1, 4.226e-1, 3.29
         z = 0
          
  # Determine the interpolation interval:
-for j in range(27):
+for j in range(len(r_selected)-1):
         if h[j] <= z < h[j+1]:
             i = j
             break
