@@ -1,0 +1,7 @@
+CD: 2.2
+m (Kg): 100
+d (diameter m): 1
+Apoapsis Altitude (Km): 939
+Periapsis Altitude (Km): 500
+Method (StudentModel, US1976 , CIRA, Jacchia, MET): CIRA
+Model Temperature (For Jacchia and MET) (Kelvin): 600

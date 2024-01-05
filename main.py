@@ -10,14 +10,98 @@ from ciraModel import *
 
 # StudentModel or US1976 or CIRA or "Jacchia"
 
-method = "Jacchia"
+#method = "Jacchia"
 
-CD = 2.2
-m = 100
-A = math.pi * (1/2)**2
-R_a = 939 + R_earth #939
-R_p = 500 + R_earth #215
-Jacchia_temp = 600
+#CD = 2.2
+#m = 100
+#A = math.pi * (1/2)**2
+#R_a = 939 + R_earth #939
+#R_p = 500 + R_earth #215
+#Jacchia_temp = 600
+
+# Read parameters from the file
+with open('input.txt', 'r') as file:
+    lines = file.readlines()
+
+# Initialize variables
+CD = None
+m = None
+A = None
+R_a = None
+R_p = None
+method = None
+Jacchia_temp = None
+
+# Parse parameters
+for line in lines:
+    key_value = line.split(':')
+    key = key_value[0].strip()
+    
+    if len(key_value) > 1:
+        value = key_value[1].strip()
+        if key == 'CD':
+            # If the value is not there:
+            if value == '':
+                print("CD not specified. Please specify the parameters in the input.txt file.")
+                exit()
+
+            CD = float(value)
+        elif key == 'm (Kg)':
+            # If the value is not there:
+            if value == '':
+                print("m not specified. Please specify the parameters in the input.txt file.")
+                exit()
+
+            m = float(value)
+        elif key == 'd (diameter m)':
+            # If the value is not there:
+            if value == '':
+                print("d not specified. Please specify the parameters in the input.txt file.")
+                exit()
+
+            A = math.pi * (float(value)/2)**2
+        elif key == 'Apoapsis Altitude (Km)':
+            #If the value is not there:
+            if value == '':
+                print("R_a not specified. Please specify the parameters in the input.txt file.")
+                exit()
+
+            R_a = float(value) + R_earth
+        elif key == 'Periapsis Altitude (Km)':
+            #If the value is not there:
+            if value == '':
+                print("R_p not specified. Please specify the parameters in the input.txt file.")
+                exit()
+
+            R_p = float(value) + R_earth
+        elif key == 'Method (StudentModel, US1976 , CIRA, Jacchia, MET)':
+            # If the value is not there:
+            if value == '':
+                print("Method not specified. Please specify the parameters in the input.txt file.")
+                exit()
+            method = value
+        elif key == 'Model Temperature (For Jacchia and MET) (Kelvin)':
+            # If the value is not there:
+            if value == '':
+                print("Temperature not specified. Please specify the parameters in the input.txt file.")
+                exit()
+            Temp = float(value)
+
+# Now, you have the parameters in the variables CD, m, A, R_a, R_p, method, and Jacchia_temp
+#print("Parameters:")
+#print(f"CD: {CD}")
+#print(f"m (Kg): {m}")
+#print(f"A (diameter m): {A}")
+#print(f"Apoapsis Altitude (m): {R_a}")
+#print(f"Periapsis Altitude (m): {R_p}")
+#print(f"Method (StudentModel, US1976 , CIRA, Jacchia, MET): {method}")
+#print(f"Model Temperature (For Jacchia and MET) (Kelvin): {Jacchia_temp}")
+
+if method == "Jacchia":
+    Jacchia_temp = Temp
+elif method == "MET":
+    MET_temp = Temp
+
 
 # Eccentric anomaly
 e = (R_a - R_p) / (R_a + R_p)
