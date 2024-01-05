@@ -158,7 +158,7 @@ def density_jacchia(z, T_exo):
                        2.919e-7, 2.033e-7,
                        1.436e-7, 1.035e-7, 7.554e-8, 5.564e-8, 4.309e-8, 3.331e-8, 2.602e-8, 
                        2.057e-8, 1.650e-8,
-                       1,342e-8, 1.106e-8, 9.920e-9, 7.773e-9, 6.618e-9, 5.688e-9, 4.929e-9, 
+                       1.342e-8, 1.106e-8, 9.920e-9, 7.773e-9, 6.618e-9, 5.688e-9, 4.929e-9, 
                        4.305e-9 ])
 
     # Select the correct array for the desired exospheric temperature
@@ -192,6 +192,84 @@ def density_jacchia(z, T_exo):
         mask = (h_final >= fit_range_start) & (h_final <= fit_range_end)
         fit_h = h_final[mask]
         fit_r = r_final[mask] 
+
+        # Choose the degree of the polynomial (2 in this case)
+        degree = 10
+
+        # Fit a polynomial to the data
+        coefficients = np.polyfit(fit_h, fit_r, degree)
+
+        # Create a polynomial function based on the coefficients
+        poly_function = np.poly1d(coefficients)
+        
+        density = poly_function(z)
+        return density
+    
+def MET(z, T_exo):
+    # Geometric Altitudes
+    h_MET = np.array([0, 25, 30, 40, 50, 60, 70, 80,
+                    90, 100, 110, 120, 130, 140, 150, 180,
+                    200, 250, 260, 270, 280, 290, 300, 310,
+                    320, 330, 340, 350, 360, 370, 380, 390,
+                    400, 410, 420, 430, 440, 450, 460, 470,
+                    480, 490, 500])
+
+    # Corresponding densities (kg/m^3) for T_Exosphere = 2400k
+    r_MET_2200 = np.array([1.225, 4.008e-2, 1.841e-2, 3.996e-3, 1.027e-3, 3.097e-4, 8.283e-5, 1.846e-5, 
+                          3.416e-6, 5.606e-7, 9.708e-8, 2.222e-8, 8.152e-9, 3.831e-9, 2.076e-9, 5.194e-10,
+                          2.541e-10, 0.17454e-9, 0.14889e-9, 0.12810e-9, 0.11100e-9, 0.96764e-10, 0.84794e-10, 0.74637e-10, 
+                          0.65953e-10, 0.58479e-10, 0.52009e-10, 0.46381e-10, 0.41464e-10, 0.37151e-10, 0.33356e-10, 0.30005e-10, 
+                          0.27039e-10, 0.24407e-10, 0.22065e-10, 0.19978e-10, 0.18113e-10, 0.16445e-10, 0.14949e-10, 0.13606e-10,
+                          0.12398e-10, 0.11311e-10, 0.10329e-10])
+
+    # Corresponding densities (kg/m^3) for T_Exosphere = 1500k
+    r_MET_1400 = np.array([3.03e-9, 2.31e-9, 1.81e-9, 1.45e-9, 9.81e-10, 6.99e-10, 5.17e-10, 3.94e-10, 
+                          3.07e-10, 2.43e-10, 1.95e-10, 1.59e-10, 1.30e-10, 1.08e-10, 8.96e-11, 7.51e-11, 
+                          6.32e-11, 5.35e-11, 4.55e-11, 3.89e-11, 3.33e-11, 2.86e-11, 2.47e-11, 2.13e-11,
+                          1.85e-11, 1.61e-11, 1.40e-11, 1.23e-11, 9.40e-12, 7.27e-12, 5.66e-12, 4.43e-12, 
+                          3.49e-12, 2.76e-12, 2.19e-12, 1.75e-12, 1.40e-12,
+                          1.13e-12, 9.07e-13, 7.33e-13, 5.94e-13, 4.83e-13, 3.93e-13, 3.21e-13, 2.63e-13, 
+                          2.16e-13, 1.78e-13, 1.47e-13, 1.21e-13, 1.01e-13, 8.39e-14, 7.01e-14, 5.88e-14, 
+                          4.94e-14, 4.17e-14, 3.54e-14, 3.01e-14, 2.57e-14])
+
+    # Corresponding densities (kg/m^3) for T_Exosphere = 600k
+    r_MET_600 = np.array ([2.07e-9, 1.48e-9, 1.09e-9, 8.15e-10, 4.76e-10, 2.91e-10, 1.83e-10, 1.19e-10, 
+                          7.87e-11, 5.32e-11, 3.66e-11, 2.55e-11, 1.80e-11, 1.29e-11, 9.28e-12, 6.74e-12, 
+                          4.93e-12, 3.63e-12, 2.68e-12, 1.99e-12, 
+                          1.49e-12, 1.11e-12, 8.37e-13, 6.31e-13, 4.77e-13, 3.63e-13, 2.76e-13, 2.12e-13, 
+                          1.26e-13, 7.65e-14, 4.79e-14,
+                          3.11e-14, 2.10e-14, 1.48e-14, 1.10e-14, 8.46e-15, 6.79e-15, 5.61e-15, 4.75e-15, 
+                          4.10e-15, 3.59e-15, 3.17e-15, 2.83e-15, 2.54e-15, 2.28e-15, 2.07e-15, 1.88e-15, 
+                          1.71e-15, 1.56e-15, 1.43e-15, 1.31e-15, 1.21e-15, 1.12e-15,
+                          1.04e-15, 9.61e-16, 8.94e-16, 8.34e-16, 7.79e-16])
+
+    # Select the correct array for the desired exospheric temperature
+    if T_exo == 2400:
+        r_MET_selected = r_MET_2200
+    elif T_exo == 1500:
+        r_MET_selected = r_MET_1400
+    elif T_exo == 600:
+        r_MET_selected = r_MET_600
+    else:
+        raise MyError("Exospheric Temperature is not valid.")
+
+    # Handle altitudes outside of the range:
+    if z > 1000:
+        z = 1000
+    elif z < 0:
+        z = 0
+
+    # Determine the interpolation interval:
+    if z < 180 or z > 500:
+        density = np.interp(z, h_MET, r_MET_selected)
+        return density
+    else:
+        # Select the range of data for fitting
+        fit_range_start = 180
+        fit_range_end = 500
+        mask = (h_MET >= fit_range_start) & (h_MET <= fit_range_end)
+        fit_h = h_MET[mask]
+        fit_r = r_MET_selected[mask] 
 
         # Choose the degree of the polynomial (2 in this case)
         degree = 10

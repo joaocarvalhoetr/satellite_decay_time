@@ -10,7 +10,7 @@ from ciraModel import *
 
 # StudentModel or US1976 or CIRA or "Jacchia"
 
-method = "StudentModel"
+method = "Jacchia"
 
 CD = 2.2
 m = 100
