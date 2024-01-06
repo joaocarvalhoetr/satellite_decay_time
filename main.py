@@ -146,6 +146,8 @@ def f(t, input):
         density = density_CIRA(r_norm - R_earth)
     elif method == "Jacchia":
         density = density_jacchia(r_norm - R_earth, Jacchia_temp)
+    elif method == "MET":
+        density = density_MET(r_norm - R_earth, MET_temp)
 
     P = -CD* density * (1000 * vrel_abs)**2  * A  / (2 *m) * vrel_unit #m/s^2
     g = -mu / r_norm**2 * r_unit # Km/s^2

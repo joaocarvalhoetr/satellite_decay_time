@@ -205,7 +205,7 @@ def density_jacchia(z, T_exo):
         density = poly_function(z)
         return density
     
-def MET(z, T_exo):
+def density_MET(z, T_exo):
     # Geometric Altitudes
     h_MET = np.array([0, 25, 30, 40, 50, 60, 70, 80,
                     90, 100, 110, 120, 130, 140, 150, 180,
