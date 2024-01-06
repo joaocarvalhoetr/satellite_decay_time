@@ -267,4 +267,28 @@ def main():
 
         model_analyses(maxima_fitted_values, minima_fitted_values, tmax, tmin)
 
+    elif method == "MET":
+        fig1 = plt.figure(1)
+
+        # Fit the data aquiared to a polynomial curve in order to improve the visualization of the graphs
+        degree = 10  # Degree of the polynomial curve to fit the data
+        maxima_coefficients, maxima_fitted_values = fit_curve(tmax, max, degree)
+        minima_coefficients, minima_fitted_values = fit_curve(tmin, min, degree)
+        
+        # Plotting maxima with fitted values
+        plt.plot(tmax/86400, maxima_fitted_values, label='Maxima', linestyle='-', color='red')
+
+        # Grid to the plot
+        plt.grid()
+
+        # Plotting minima with fitted values
+        plt.plot(tmin/86400, minima_fitted_values, label='Minima', linestyle='-', color='green')
+        plt.xlabel('Time (days)')
+        plt.ylabel('Altitude (Km)')        
+
+        # Display the plot
+        #fig1.show()
+
+        model_analyses(maxima_fitted_values, minima_fitted_values, tmax, tmin)
+
 main()
