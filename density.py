@@ -243,7 +243,7 @@ def density_MET(z, T_exo):
     # Select the correct array for the desired exospheric temperature
     if T_exo == 2200:
         r_MET_selected = r_MET_2200
-    elif T_exo == 1500:
+    elif T_exo == 1400:
         r_MET_selected = r_MET_1400
     elif T_exo == 600:
         r_MET_selected = r_MET_600
