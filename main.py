@@ -53,6 +53,7 @@ from ciraModel import *
 
 # Version 0.6 (Dec 30, 2023)
 # - Deleted altitude_vs_time.gif.
+# - Deleted 2D and 3D orbit graphics.
 
 # Version 0.5 (Dec 29, 2023)
 # - Added 2D and 3D orbit graphics as the satellite falls.
