@@ -8,6 +8,82 @@ from analyses import *
 import matplotlib.pyplot as plt
 from ciraModel import *
 
+# Header Comments
+#
+# Project: Satellite Reentry
+#
+# Description: This program computes the time of a satellite into the Earth's atmosphere. It solves an ODE system that
+# describes the satellite's motion. The program also computes the altitude of the satellite as a function of time and
+# plots the results. For each method, the program computes the specific density for each time step.
+# The ODE system is solved using the DOP853 which is a Runge-Kutta method of order 8. There's a TXT file that contains
+# the parameters of the satellite and the method to be used. The program reads the parameters from the file and computes
+# the results.
+# There's 5 methods available: StudentModel, US1976, CIRA, Jacchia, and MET. The StudentModel is a model developed by
+# the students that considers g constant and uses Scale Factors.
+#
+# We took inspiration from the book: Howard D. Curtis - Orbital Mechanics For Engineering Students
+#
+# Authors: 
+# António José Domingos Reis (102473), Ricardo Gandra de Sousa (102498), Tiago André da Silva Ruge (102551), 
+# João P. Veloso Onofre de Carvalho (102686), Eduardo De Almeida Helena (102793), Tomás Gomes Coelho (102805),
+# Gonçalo José Reis Bessa da Silva (102995), Fernando Meneses Vicente (103048), Álvaro G. Silva Vilela Caridade (103526)
+# João Nuno Rodrigues Alegrete (103676), João Bessa e Silva Machado Vilaça (103966)
+#
+# Current Version: 1.0 (Jan 5, 2024)
+#
+#
+# Version History:
+# Version 1.0 (Jan 5, 2024)
+# - Updated temperature values in models.
+# - Renamed analysis-related components.
+# - Merged changes from the main branch.
+# - Added MET (Mission Elapsed Time) to the main branch.
+# - Removed obsolete code and files.
+# - Work related to MET density.
+
+# Version 0.9 (Jan 4, 2024)
+# - Updated density calculations - CIRA, Nasa Model, Student Developed.
+
+# Version 0.8 (Jan 2, 2024)
+# - Updated constants in the code.
+# - Changed the name of the acceleration function.
+
+# Version 0.7 (Jan 1, 2024)
+# - Organized files, moving them to the TEMP directory.
+
+# Version 0.6 (Dec 30, 2023)
+# - Deleted altitude_vs_time.gif.
+
+# Version 0.5 (Dec 29, 2023)
+# - Added 2D and 3D orbit graphics as the satellite falls.
+# - Rotated the Earth in the graphics.
+
+# Version 0.4 (Dec 28, 2023)
+# - Created function to mask data.
+# - Updated the main script.
+
+# Version 0.3 (Dec 27, 2023)
+# - Main modifications.
+# - Updated simplified model.
+# - Updated the simplified test script.
+
+# Version 0.2 (Dec 26, 2023)
+# - Introduced a simplified version of the program.
+
+# Version 0.1 (Dec 23, 2023)
+# - Added 3D animation functionality.
+
+# Version 0.0 (Dec 17, 2023)
+# - ODE (Ordinary Differential Equation) solver is working.
+# - Work on the ODE system.
+
+# Initial Commit (Dec 16, 2023)
+# - Initial working version.
+# - Creation of US1976 Model.
+# - Added functionality to read from text files.
+#
+# End of Header Comments
+
 # Read parameters from the file
 with open('input.txt', 'r') as file:
     lines = file.readlines()
