@@ -4,7 +4,7 @@ import numpy as np
 from density import *
 from constants import *
 from findpeaks import *
-from us1976_analyses import *
+from analyses import *
 import matplotlib.pyplot as plt
 from ciraModel import *
 
