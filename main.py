@@ -8,17 +8,6 @@ from analyses import *
 import matplotlib.pyplot as plt
 from ciraModel import *
 
-# StudentModel or US1976 or CIRA or "Jacchia"
-
-#method = "Jacchia"
-
-#CD = 2.2
-#m = 100
-#A = math.pi * (1/2)**2
-#R_a = 939 + R_earth #939
-#R_p = 500 + R_earth #215
-#Jacchia_temp = 600
-
 # Read parameters from the file
 with open('input.txt', 'r') as file:
     lines = file.readlines()
@@ -43,6 +32,7 @@ for line in lines:
             # If the value is not there:
             if value == '':
                 print("CD not specified. Please specify the parameters in the input.txt file.")
+                input("Press Enter to close the terminal...")
                 exit()
 
             CD = float(value)
@@ -50,6 +40,7 @@ for line in lines:
             # If the value is not there:
             if value == '':
                 print("m not specified. Please specify the parameters in the input.txt file.")
+                input("Press Enter to close the terminal...")
                 exit()
 
             m = float(value)
@@ -57,6 +48,7 @@ for line in lines:
             # If the value is not there:
             if value == '':
                 print("d not specified. Please specify the parameters in the input.txt file.")
+                input("Press Enter to close the terminal...")
                 exit()
 
             A = math.pi * (float(value)/2)**2
@@ -64,6 +56,7 @@ for line in lines:
             #If the value is not there:
             if value == '':
                 print("R_a not specified. Please specify the parameters in the input.txt file.")
+                input("Press Enter to close the terminal...")
                 exit()
 
             R_a = float(value) + R_earth
@@ -71,6 +64,7 @@ for line in lines:
             #If the value is not there:
             if value == '':
                 print("R_p not specified. Please specify the parameters in the input.txt file.")
+                input("Press Enter to close the terminal...")
                 exit()
 
             R_p = float(value) + R_earth
@@ -78,13 +72,33 @@ for line in lines:
             # If the value is not there:
             if value == '':
                 print("Method not specified. Please specify the parameters in the input.txt file.")
+                input("Press Enter to close the terminal...")
                 exit()
             method = value
         elif key == 'Model Temperature (For Jacchia and MET) (Kelvin)':
             # If the value is not there:
             if value == '':
                 print("Temperature not specified. Please specify the parameters in the input.txt file.")
+                input("Press Enter to close the terminal...")
                 exit()
+            # Check if the temperature is available Jaccia or MET. Jaccia available is 600 1500 2400 and MET 600 1400 and 2200
+            
+            if method == "Jacchia":
+                if value == '600' or value == '1500' or value == '2400':
+                    pass
+                else:
+                    print("Temperature not available for Jaccia. Please specify the parameters in the input.txt file.")
+                    input("Press Enter to close the terminal...")
+                    exit()
+
+            elif method == "MET":
+                if value == '600' or value == '1400' or value == '2200':
+                    pass
+                else:
+                    print("Temperature not available for MET. Please specify the parameters in the input.txt file.")
+                    input("Press Enter to close the terminal...")
+                    exit()
+            
             Temp = float(value)
 
 # Now, you have the parameters in the variables CD, m, A, R_a, R_p, method, and Jacchia_temp

@@ -3,7 +3,7 @@ m (Kg): 100
 d (diameter m): 1
 Apoapsis Altitude (Km): 939
 Periapsis Altitude (Km): 500
-Method (StudentModel, US1976 , CIRA, Jacchia, MET): MET
-Model Temperature (For Jacchia and MET) (Kelvin): 2200
-For Jacchia Temperatures available are 600, 1500, 2400 K
-For MET Temperatures available are 600, 1400, 2200 K
+Method (StudentModel, US1976 , CIRA, Jacchia, MET): US1976
+Model Temperature (For Jacchia and MET) (Kelvin): 2800
+For Jacchia, Temperatures available are 600, 1500, 2400 K
+For MET, Temperatures available are 600, 1400, 2200 K
