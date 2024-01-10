@@ -194,7 +194,7 @@ elif method == "MET":
     MET_temp = Temp
 
 
-# Eccentric anomaly
+# excentricity
 e = (R_a - R_p) / (R_a + R_p)
 
 # Semi-major axis
